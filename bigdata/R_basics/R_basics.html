@@ -449,8 +449,8 @@ data-diagnostics="1" data-startover="1" data-lines="0">
 </tbody>
 </table>
 <p>特别注意不同类型之间的转换并不是等价的。除NA外所有类型都可以转换为字符型，但是只有本身就是”数字”的字符型才可以转化为数值型。任何数值型都可以转为逻辑型，数字<code>0</code>会转换为<code>FALSE</code>，其他数字会转换为<code>TRUE</code>；反过来，<code>TRUE</code>会转换为<code>1</code>，<code>FALSE</code>会转换为<code>0</code>。</p>
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-6db9cf8b47ca500c423f" style="width:624px;height:10%;"></div>
-<script type="application/json" data-for="htmlwidget-6db9cf8b47ca500c423f">{"x":{"diagram":"digraph R {\n  \n  rankdir = LR\n  layout = dot\n  node [shape = box]\n  \n  num [style=\"rounded, filled\",label = \"numeric\",fillcolor = Gainsboro]\n  char [style=\"rounded, filled\", label = \"character\",fillcolor = Gainsboro]\n  log [style=\"rounded, filled\", label = \"logical\",fillcolor= Gainsboro]\n  num -> char [label = \"as.character\"]\n  char -> num [label = \"as.numeric(数字组成字符)\"]\n  char -> log [label = \"as.logical(逻辑型字符)\"]\n  num -> log [label = \"as.logical\"]\n  log -> num [label = \"as.numeric\"]\n  log -> char [label = \"as.character\"]\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-d9c3000703f3f6573425" style="width:624px;height:10%;"></div>
+<script type="application/json" data-for="htmlwidget-d9c3000703f3f6573425">{"x":{"diagram":"digraph R {\n  \n  rankdir = LR\n  layout = dot\n  node [shape = box]\n  \n  num [style=\"rounded, filled\",label = \"numeric\",fillcolor = Gainsboro]\n  char [style=\"rounded, filled\", label = \"character\",fillcolor = Gainsboro]\n  log [style=\"rounded, filled\", label = \"logical\",fillcolor= Gainsboro]\n  num -> char [label = \"as.character\"]\n  char -> num [label = \"as.numeric(数字组成字符)\"]\n  char -> log [label = \"as.logical(逻辑型字符)\"]\n  num -> log [label = \"as.logical\"]\n  log -> num [label = \"as.numeric\"]\n  log -> char [label = \"as.character\"]\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 <p><strong>课堂练习</strong></p>
 <ul>
 <li>如何将3.141592657 转换成 character</li>
@@ -1043,6 +1043,12 @@ data-diagnostics="1" data-startover="1" data-lines="0">
 </div>
 <p>
 <script type="application/shiny-prerendered" data-context="server-start">
+for (pkg in c('learnr','DiagrammeR')){
+  if(!require(pkg,character.only = T)){
+  install.packages(pkg)
+}
+}
+
 library(learnr)
 knitr::opts_chunk$set(echo = FALSE)
 </script>
@@ -1076,11 +1082,12 @@ output$`tutorial-exercise-wd1-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "wd1", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "wd1", 
-    code = "# 赋值一个工作路径变量，该路径应该是已经存在的，如果不存在需要使用下接中的dir.create函数创建\nmypath = \"~/myRworkingdir\" \n# 为了确保路径存在，可以先查看其是否存在\nfile.exists(mypath)   \n# 查看当前的工作路径\ngetwd()  \n# 设定mypath为工作路径\nsetwd(mypath)\n# 查看当前目录的子路径\nlist.dirs()             \n# 查看当前目录的子目录和文件\ndir()   \n# 查看特定路径的子目录和文件\ndir(mypath)  \n# 列出目录下包括隐藏文件在内的所有的目录和文件\ndir(mypath,all.files=TRUE)\n# 只列出以字母R开头的子目录或文件\ndir(mypath,pattern='^R')\n# 查看当前目录权限\nfile.info(\".\")         ", 
-    opts = list(label = "\"wd1\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "wd1", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "wd1", code = "# 赋值一个工作路径变量，该路径应该是已经存在的，如果不存在需要使用下接中的dir.create函数创建\nmypath = \"~/myRworkingdir\" \n# 为了确保路径存在，可以先查看其是否存在\nfile.exists(mypath)   \n# 查看当前的工作路径\ngetwd()  \n# 设定mypath为工作路径\nsetwd(mypath)\n# 查看当前目录的子路径\nlist.dirs()             \n# 查看当前目录的子目录和文件\ndir()   \n# 查看特定路径的子目录和文件\ndir(mypath)  \n# 列出目录下包括隐藏文件在内的所有的目录和文件\ndir(mypath,all.files=TRUE)\n# 只列出以字母R开头的子目录或文件\ndir(mypath,pattern='^R')\n# 查看当前目录权限\nfile.info(\".\")         ", 
+        opts = list(label = "\"wd1\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1123,11 +1130,12 @@ output$`tutorial-exercise-wd2-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "wd2", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "wd2", 
-    code = "# 在当前目录下，新建一个路径\ndir.create(\"newdir\")\n# 递归创建一个3级子路径newdir1/newdir2/newdir3，使用recursive参数，直接创建会出错\ndir.create(path=\"newdir1/newdir2/newdir3\",recursive = TRUE)  ", 
-    opts = list(label = "\"wd2\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "wd2", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "wd2", code = "# 在当前目录下，新建一个路径\ndir.create(\"newdir\")\n# 递归创建一个3级子路径newdir1/newdir2/newdir3，使用recursive参数，直接创建会出错\ndir.create(path=\"newdir1/newdir2/newdir3\",recursive = TRUE)  ", 
+        opts = list(label = "\"wd2\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1163,11 +1171,12 @@ output$`tutorial-exercise-wd3-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "wd3", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "wd3", 
-    code = "# 检查文件是否存在\nfile.exists(\"myfile.txt\")  \n# 查看文件完整信息\nfile.info(\"myfile.txt\")\n# 查看文件访问权限\nfile.access(\"myfile.txt\",0)\n#判断是文件还是目录。-d 是目录返回ture，-f是文件会ture\nfile_test(\"-d\", \"myfile.txt\")", 
-    opts = list(label = "\"wd3\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "wd3", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "wd3", code = "# 检查文件是否存在\nfile.exists(\"myfile.txt\")  \n# 查看文件完整信息\nfile.info(\"myfile.txt\")\n# 查看文件访问权限\nfile.access(\"myfile.txt\",0)\n#判断是文件还是目录。-d 是目录返回ture，-f是文件会ture\nfile_test(\"-d\", \"myfile.txt\")", 
+        opts = list(label = "\"wd3\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1205,11 +1214,12 @@ output$`tutorial-exercise-wd4-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "wd4", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "wd4", 
-    code = "# 创建一个空文件 output.txt\nfile.create(\"output.txt\")\n# 把相关的内容写入output.txt件中，若没有这个文件则创建文件并写入内容 \ncat(\"output \\n\", file = \"output.txt\") \n# 合并文件,把文件output.txt的内容合并到myfile.txt\nfile.append(\"myfile.txt\", \"output.txt\")\n#把文件myfile.txt复制到文件output.txt\nfile.copy(\"myfile.txt\", \"output.txt\")    ", 
-    opts = list(label = "\"wd4\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "wd4", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "wd4", code = "# 创建一个空文件 output.txt\nfile.create(\"output.txt\")\n# 把相关的内容写入output.txt件中，若没有这个文件则创建文件并写入内容 \ncat(\"output \\n\", file = \"output.txt\") \n# 合并文件,把文件output.txt的内容合并到myfile.txt\nfile.append(\"myfile.txt\", \"output.txt\")\n#把文件myfile.txt复制到文件output.txt\nfile.copy(\"myfile.txt\", \"output.txt\")    ", 
+        opts = list(label = "\"wd4\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1247,11 +1257,12 @@ output$`tutorial-exercise-wd6-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "wd6", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "wd6", 
-    code = "# 将文件file重名名为newfile\nfile.rename(\"myfile.txt\",\"mynewfile.txt\")\n# 将路径newdir重名名为newdir_rename\nfile.rename(\"newdir\", \"newdir_rename\")    ", 
-    opts = list(label = "\"wd6\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "wd6", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "wd6", code = "# 将文件file重名名为newfile\nfile.rename(\"myfile.txt\",\"mynewfile.txt\")\n# 将路径newdir重名名为newdir_rename\nfile.rename(\"newdir\", \"newdir_rename\")    ", 
+        opts = list(label = "\"wd6\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1287,11 +1298,12 @@ output$`tutorial-exercise-wd7-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "wd7", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "wd7", 
-    code = "# 删除前面创建的文件\nfile.remove(\"mynewfile.txt\", \"myfile.txt\") \n# 删除文件\nunlink(\"output.txt\")\n# 删除路径\nunlink(\"newdir\", recursive = T)      ", 
-    opts = list(label = "\"wd7\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "wd7", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "wd7", code = "# 删除前面创建的文件\nfile.remove(\"mynewfile.txt\", \"myfile.txt\") \n# 删除文件\nunlink(\"output.txt\")\n# 删除路径\nunlink(\"newdir\", recursive = T)      ", 
+        opts = list(label = "\"wd7\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1327,16 +1339,18 @@ output$`tutorial-exercise-ct1-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "ct1", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "ct1", 
-    code = "1\n3+2\npi", opts = list(label = "\"ct1\"", exercise = "TRUE"), 
-    engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = NULL, tests = NULL, options = list(eval = FALSE, 
-        echo = TRUE, results = "markup", tidy = FALSE, tidy.opts = NULL, 
-        collapse = FALSE, prompt = FALSE, comment = NA, highlight = FALSE, 
-        size = "normalsize", background = "#F7F7F7", strip.white = TRUE, 
-        cache = 0, cache.path = "R_basics_cache/html/", cache.vars = NULL, 
+learnr:::store_exercise_cache(structure(list(label = "ct1", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "ct1", code = "1\n3+2\npi", opts = list(
+        label = "\"ct1\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "R_basics_cache/html/", cache.vars = NULL, 
         cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
         cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
         fig.align = "default", fig.path = "R_basics_files/figure-html/", 
@@ -1364,13 +1378,14 @@ output$`tutorial-exercise-ct2-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "ct2", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "ct2", 
-    code = "TRUE;FALSE\nT;F", opts = list(label = "\"ct2\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "ct2", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "ct2", code = "TRUE;FALSE\nT;F", 
+        opts = list(label = "\"ct2\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -1402,13 +1417,14 @@ output$`tutorial-exercise-ct3-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "ct3", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "ct3", 
-    code = "\nLETTERS\nmonth.abb\nmonth.name", opts = list(label = "\"ct3\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "ct3", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "ct3", code = "\nLETTERS\nmonth.abb\nmonth.name", 
+        opts = list(label = "\"ct3\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -1441,11 +1457,12 @@ output$`tutorial-exercise-ct4-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "ct4", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "ct4", 
-    code = "paste(\"Hello\", \"World\", sep = \"+\")", opts = list(
-        label = "\"ct4\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "ct4", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "ct4", code = "paste(\"Hello\", \"World\", sep = \"+\")", 
+        opts = list(label = "\"ct4\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1479,13 +1496,14 @@ output$`tutorial-exercise-ct5-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "ct5", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "ct5", 
-    code = "nchar(\"Hello World\")", opts = list(label = "\"ct5\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "ct5", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "ct5", code = "nchar(\"Hello World\")", 
+        opts = list(label = "\"ct5\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -1517,13 +1535,14 @@ output$`tutorial-exercise-ct6-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "ct6", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "ct6", 
-    code = "substr(\"Hello World\",1,4)", opts = list(label = "\"ct6\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "ct6", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "ct6", code = "substr(\"Hello World\",1,4)", 
+        opts = list(label = "\"ct6\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -1555,16 +1574,18 @@ output$`tutorial-exercise-ct7-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "ct7", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "ct7", 
-    code = "NA", opts = list(label = "\"ct7\"", exercise = "TRUE"), 
-    engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = NULL, tests = NULL, options = list(eval = FALSE, 
-        echo = TRUE, results = "markup", tidy = FALSE, tidy.opts = NULL, 
-        collapse = FALSE, prompt = FALSE, comment = NA, highlight = FALSE, 
-        size = "normalsize", background = "#F7F7F7", strip.white = TRUE, 
-        cache = 0, cache.path = "R_basics_cache/html/", cache.vars = NULL, 
+learnr:::store_exercise_cache(structure(list(label = "ct7", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "ct7", code = "NA", opts = list(
+        label = "\"ct7\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "R_basics_cache/html/", cache.vars = NULL, 
         cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
         cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
         fig.align = "default", fig.path = "R_basics_files/figure-html/", 
@@ -1592,16 +1613,18 @@ output$`tutorial-exercise-ct8-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "ct8", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "ct8", 
-    code = "", opts = list(label = "\"ct8\"", exercise = "TRUE"), 
-    engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = NULL, tests = NULL, options = list(eval = FALSE, 
-        echo = TRUE, results = "markup", tidy = FALSE, tidy.opts = NULL, 
-        collapse = FALSE, prompt = FALSE, comment = NA, highlight = FALSE, 
-        size = "normalsize", background = "#F7F7F7", strip.white = TRUE, 
-        cache = 0, cache.path = "R_basics_cache/html/", cache.vars = NULL, 
+learnr:::store_exercise_cache(structure(list(label = "ct8", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "ct8", code = "", opts = list(
+        label = "\"ct8\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "R_basics_cache/html/", cache.vars = NULL, 
         cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
         cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
         fig.align = "default", fig.path = "R_basics_files/figure-html/", 
@@ -1629,16 +1652,18 @@ output$`tutorial-exercise-var1-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "var1", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "var1", 
-    code = "x <- 3.14159", opts = list(label = "\"var1\"", exercise = "TRUE"), 
-    engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = NULL, tests = NULL, options = list(eval = FALSE, 
-        echo = TRUE, results = "markup", tidy = FALSE, tidy.opts = NULL, 
-        collapse = FALSE, prompt = FALSE, comment = NA, highlight = FALSE, 
-        size = "normalsize", background = "#F7F7F7", strip.white = TRUE, 
-        cache = 0, cache.path = "R_basics_cache/html/", cache.vars = NULL, 
+learnr:::store_exercise_cache(structure(list(label = "var1", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "var1", code = "x <- 3.14159", 
+        opts = list(label = "\"var1\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "R_basics_cache/html/", cache.vars = NULL, 
         cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
         cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
         fig.align = "default", fig.path = "R_basics_files/figure-html/", 
@@ -1666,11 +1691,12 @@ output$`tutorial-exercise-var2-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "var2", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "var2", 
-    code = "x <- 3.14159\nget('x')\nassign('y',x)\nget('y')", 
-    opts = list(label = "\"var2\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "var2", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "var2", code = "x <- 3.14159\nget('x')\nassign('y',x)\nget('y')", 
+        opts = list(label = "\"var2\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1705,11 +1731,12 @@ output$`tutorial-exercise-v1-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v1", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v1", 
-    code = "v1 <- c(1,2,3,4)\nv2 <- c(2,3,4,5)\nv3 <- c(v1,v2)\nv4 <- c(1,2,'c')\nv1\nv2\nv3\nv4", 
-    opts = list(label = "\"v1\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "v1", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v1", code = "v1 <- c(1,2,3,4)\nv2 <- c(2,3,4,5)\nv3 <- c(v1,v2)\nv4 <- c(1,2,'c')\nv1\nv2\nv3\nv4", 
+        opts = list(label = "\"v1\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1744,11 +1771,12 @@ output$`tutorial-exercise-v2-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v2", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v2", 
-    code = "seq(1,10,4) # 第一个参数表示数列起点，第二个参数表示数列最大值，第三个参数表示间隔值，注意最大值不一定会被取到\n1:10 #间隔为1的等差数列，是一种约定俗成的简要写法\nrep('a',4)", 
-    opts = list(label = "\"v2\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "v2", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v2", code = "seq(1,10,4) # 第一个参数表示数列起点，第二个参数表示数列最大值，第三个参数表示间隔值，注意最大值不一定会被取到\n1:10 #间隔为1的等差数列，是一种约定俗成的简要写法\nrep('a',4)", 
+        opts = list(label = "\"v2\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1783,16 +1811,18 @@ output$`tutorial-exercise-v3-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v3", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v3", 
-    code = "\n", opts = list(label = "\"v3\"", exercise = "TRUE"), 
-    engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = NULL, tests = NULL, options = list(eval = FALSE, 
-        echo = TRUE, results = "markup", tidy = FALSE, tidy.opts = NULL, 
-        collapse = FALSE, prompt = FALSE, comment = NA, highlight = FALSE, 
-        size = "normalsize", background = "#F7F7F7", strip.white = TRUE, 
-        cache = 0, cache.path = "R_basics_cache/html/", cache.vars = NULL, 
+learnr:::store_exercise_cache(structure(list(label = "v3", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v3", code = "\n", opts = list(
+        label = "\"v3\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "R_basics_cache/html/", cache.vars = NULL, 
         cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
         cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
         fig.align = "default", fig.path = "R_basics_files/figure-html/", 
@@ -1820,13 +1850,14 @@ output$`tutorial-exercise-v4-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v4", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v4", 
-    code = "as.character(v1)", opts = list(label = "\"v4\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "v4", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v4", code = "as.character(v1)", 
+        opts = list(label = "\"v4\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -1858,13 +1889,14 @@ output$`tutorial-exercise-v5-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v5", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v5", 
-    code = "v1 + 1\nv1 + v2\nv1 * v2", opts = list(label = "\"v5\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "v5", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v5", code = "v1 + 1\nv1 + v2\nv1 * v2", 
+        opts = list(label = "\"v5\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -1896,16 +1928,18 @@ output$`tutorial-exercise-v6-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v6", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v6", 
-    code = "", opts = list(label = "\"v6\"", exercise = "TRUE"), 
-    engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = NULL, tests = NULL, options = list(eval = FALSE, 
-        echo = TRUE, results = "markup", tidy = FALSE, tidy.opts = NULL, 
-        collapse = FALSE, prompt = FALSE, comment = NA, highlight = FALSE, 
-        size = "normalsize", background = "#F7F7F7", strip.white = TRUE, 
-        cache = 0, cache.path = "R_basics_cache/html/", cache.vars = NULL, 
+learnr:::store_exercise_cache(structure(list(label = "v6", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v6", code = "", opts = list(label = "\"v6\"", 
+        exercise = "TRUE"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
+    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "R_basics_cache/html/", cache.vars = NULL, 
         cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
         cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
         fig.align = "default", fig.path = "R_basics_files/figure-html/", 
@@ -1933,13 +1967,14 @@ output$`tutorial-exercise-v7-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v7", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v7", 
-    code = "v1 %in% v2\nintersect(v1,v2)", opts = list(label = "\"v7\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "v7", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v7", code = "v1 %in% v2\nintersect(v1,v2)", 
+        opts = list(label = "\"v7\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -1971,11 +2006,12 @@ output$`tutorial-exercise-v8-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v8", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v8", 
-    code = "v1[c(T,T,F,F)] # 相当于是取出前两个元素", 
-    opts = list(label = "\"v8\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "v8", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v8", code = "v1[c(T,T,F,F)] # 相当于是取出前两个元素", 
+        opts = list(label = "\"v8\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2009,11 +2045,12 @@ output$`tutorial-exercise-v9-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v9", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v9", 
-    code = "index <- v1 > 2\nv1[index] \n# 上面代码可以合并成一个\nv1[v1 > 2]", 
-    opts = list(label = "\"v9\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "v9", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v9", code = "index <- v1 > 2\nv1[index] \n# 上面代码可以合并成一个\nv1[v1 > 2]", 
+        opts = list(label = "\"v9\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2048,16 +2085,18 @@ output$`tutorial-exercise-v9_2-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v9_2", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v9_2", 
-    code = "", opts = list(label = "\"v9_2\"", exercise = "TRUE"), 
-    engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = NULL, tests = NULL, options = list(eval = FALSE, 
-        echo = TRUE, results = "markup", tidy = FALSE, tidy.opts = NULL, 
-        collapse = FALSE, prompt = FALSE, comment = NA, highlight = FALSE, 
-        size = "normalsize", background = "#F7F7F7", strip.white = TRUE, 
-        cache = 0, cache.path = "R_basics_cache/html/", cache.vars = NULL, 
+learnr:::store_exercise_cache(structure(list(label = "v9_2", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v9_2", code = "", opts = list(
+        label = "\"v9_2\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "R_basics_cache/html/", cache.vars = NULL, 
         cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
         cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
         fig.align = "default", fig.path = "R_basics_files/figure-html/", 
@@ -2085,11 +2124,12 @@ output$`tutorial-exercise-v10-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v10", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v10", 
-    code = "ages <- c(50, 55, 58)\nnames(ages) <- c('赵四','刘能','长贵')\nages <- c(\"赵四\"=50, \"刘能\"=55, \"长贵\"=58)\nages <- setNames(c(50, 55, 58), c('赵四','刘能','长贵'))", 
-    opts = list(label = "\"v10\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "v10", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v10", code = "ages <- c(50, 55, 58)\nnames(ages) <- c('赵四','刘能','长贵')\nages <- c(\"赵四\"=50, \"刘能\"=55, \"长贵\"=58)\nages <- setNames(c(50, 55, 58), c('赵四','刘能','长贵'))", 
+        opts = list(label = "\"v10\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2125,11 +2165,12 @@ output$`tutorial-exercise-v11-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "v11", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "v11", 
-    code = "ages['赵四']\n\nages['赵四'] <- 51", opts = list(
-        label = "\"v11\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "v11", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "v11", code = "ages['赵四']\n\nages['赵四'] <- 51", 
+        opts = list(label = "\"v11\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2163,11 +2204,12 @@ output$`tutorial-exercise-f1-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "f1", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "f1", 
-    code = "x <- c(\"男\",\"女\",\"男\",\"男\",\"女\")\ngender <- factor(x)", 
-    opts = list(label = "\"f1\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "f1", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "f1", code = "x <- c(\"男\",\"女\",\"男\",\"男\",\"女\")\ngender <- factor(x)", 
+        opts = list(label = "\"f1\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2201,11 +2243,12 @@ output$`tutorial-exercise-f2-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "f2", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "f2", 
-    code = "levels(gender) <- rev(sort(levels(gender))) ", opts = list(
-        label = "\"f2\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "f2", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "f2", code = "levels(gender) <- rev(sort(levels(gender))) ", 
+        opts = list(label = "\"f2\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2239,13 +2282,14 @@ output$`tutorial-exercise-f3-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "f3", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "f3", 
-    code = "as.numeric(gender)", opts = list(label = "\"f3\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "f3", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "f3", code = "as.numeric(gender)", 
+        opts = list(label = "\"f3\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -2277,11 +2321,12 @@ output$`tutorial-exercise-f4-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "f4", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "f4", 
-    code = "as.numeric(factor(c(1,10,23)))\nas.numeric(as.character(factor(c(1,10,23))))", 
-    opts = list(label = "\"f4\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "f4", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "f4", code = "as.numeric(factor(c(1,10,23)))\nas.numeric(as.character(factor(c(1,10,23))))", 
+        opts = list(label = "\"f4\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2316,11 +2361,12 @@ output$`tutorial-exercise-m1-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "m1", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "m1", 
-    code = "M1 <- matrix(c(3:14), nrow = 4, byrow = TRUE)\nM2 <- matrix(c(2,6,5,1,10,4),nrow = 2,ncol = 3,byrow = TRUE)", 
-    opts = list(label = "\"m1\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "m1", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "m1", code = "M1 <- matrix(c(3:14), nrow = 4, byrow = TRUE)\nM2 <- matrix(c(2,6,5,1,10,4),nrow = 2,ncol = 3,byrow = TRUE)", 
+        opts = list(label = "\"m1\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2355,13 +2401,14 @@ output$`tutorial-exercise-m2-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "m2", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "m2", 
-    code = "M3 <- diag(5.2,3)", opts = list(label = "\"m2\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "m2", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "m2", code = "M3 <- diag(5.2,3)", 
+        opts = list(label = "\"m2\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -2393,13 +2440,14 @@ output$`tutorial-exercise-m3-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "m3", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "m3", 
-    code = "M1[nrow(M1):1,]\nM1[,ncol(M1):1]", opts = list(label = "\"m3\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "m3", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "m3", code = "M1[nrow(M1):1,]\nM1[,ncol(M1):1]", 
+        opts = list(label = "\"m3\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -2431,11 +2479,12 @@ output$`tutorial-exercise-m4-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "m4", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "m4", 
-    code = "rownames(M1) <- c(\"r1\",\"r2\",\"r3\",\"r4\")\ncolnames(M2)<- c(\"c1\",\"c2\",\"c3\")", 
-    opts = list(label = "\"m4\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "m4", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "m4", code = "rownames(M1) <- c(\"r1\",\"r2\",\"r3\",\"r4\")\ncolnames(M2)<- c(\"c1\",\"c2\",\"c3\")", 
+        opts = list(label = "\"m4\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2470,11 +2519,12 @@ output$`tutorial-exercise-m5-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "m5", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "m5", 
-    code = "M1 %*% t(M2) # t是矩阵转置函数", opts = list(
-        label = "\"m5\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "m5", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "m5", code = "M1 %*% t(M2) # t是矩阵转置函数", 
+        opts = list(label = "\"m5\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2508,11 +2558,12 @@ output$`tutorial-exercise-df1-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "df1", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "df1", 
-    code = "df1 <- data.frame(c(1,7,3), c('S','A','U'),c(T,F,T))\ndf2 <- data.frame(M1)", 
-    opts = list(label = "\"df1\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "df1", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "df1", code = "df1 <- data.frame(c(1,7,3), c('S','A','U'),c(T,F,T))\ndf2 <- data.frame(M1)", 
+        opts = list(label = "\"df1\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2546,11 +2597,12 @@ output$`tutorial-exercise-df2-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "df2", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "df2", 
-    code = "names(df1) <- c(\"c1\",\"c2\",\"c3\")", opts = list(
-        label = "\"df2\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "df2", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "df2", code = "names(df1) <- c(\"c1\",\"c2\",\"c3\")", 
+        opts = list(label = "\"df2\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2584,11 +2636,12 @@ output$`tutorial-exercise-df3-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "df3", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "df3", 
-    code = "df3 <- data.frame(univ = c('上海交通大学','上海交通大学','上海交通大学'), \n                  subject = c('公共管理','公共管理','公共管理'),\n                  pubyear = c(2020,2021,2022),\n                  pubnum = c(49,64,62))", 
-    opts = list(label = "\"df3\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "df3", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "df3", code = "df3 <- data.frame(univ = c('上海交通大学','上海交通大学','上海交通大学'), \n                  subject = c('公共管理','公共管理','公共管理'),\n                  pubyear = c(2020,2021,2022),\n                  pubnum = c(49,64,62))", 
+        opts = list(label = "\"df3\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2624,11 +2677,12 @@ output$`tutorial-exercise-df4-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "df4", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "df4", 
-    code = "df3[2,3]\ndf3$pubnum\ndf3[df3$pubyear == 2022,]\ndf3[df3$pubyear == 2022,] <- 66\ndf3", 
-    opts = list(label = "\"df4\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "df4", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "df4", code = "df3[2,3]\ndf3$pubnum\ndf3[df3$pubyear == 2022,]\ndf3[df3$pubyear == 2022,] <- 66\ndf3", 
+        opts = list(label = "\"df4\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2663,11 +2717,12 @@ output$`tutorial-exercise-lt1-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "lt1", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "lt1", 
-    code = "list_data <-list(univ = \"上海交通大学\",\n                 startyear = 1896,\n                 position = c(121.433,31.200))", 
-    opts = list(label = "\"lt1\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "lt1", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "lt1", code = "list_data <-list(univ = \"上海交通大学\",\n                 startyear = 1896,\n                 position = c(121.433,31.200))", 
+        opts = list(label = "\"lt1\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2702,13 +2757,14 @@ output$`tutorial-exercise-lt2-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "lt2", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "lt2", 
-    code = "names(list_data)", opts = list(label = "\"lt2\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "lt2", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "lt2", code = "names(list_data)", 
+        opts = list(label = "\"lt2\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -2740,11 +2796,12 @@ output$`tutorial-exercise-lt3-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "lt3", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "lt3", 
-    code = "list_data[[1]]\nlist_data[['univ']]", opts = list(
-        label = "\"lt3\"", exercise = "TRUE"), engine = "r")), 
+learnr:::store_exercise_cache(structure(list(label = "lt3", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "lt3", code = "list_data[[1]]\nlist_data[['univ']]", 
+        opts = list(label = "\"lt3\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -2778,16 +2835,18 @@ output$`tutorial-exercise-lt4-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "lt4", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "lt4", 
-    code = "list_data[1]", opts = list(label = "\"lt4\"", exercise = "TRUE"), 
-    engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = NULL, tests = NULL, options = list(eval = FALSE, 
-        echo = TRUE, results = "markup", tidy = FALSE, tidy.opts = NULL, 
-        collapse = FALSE, prompt = FALSE, comment = NA, highlight = FALSE, 
-        size = "normalsize", background = "#F7F7F7", strip.white = TRUE, 
-        cache = 0, cache.path = "R_basics_cache/html/", cache.vars = NULL, 
+learnr:::store_exercise_cache(structure(list(label = "lt4", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "lt4", code = "list_data[1]", 
+        opts = list(label = "\"lt4\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "R_basics_cache/html/", cache.vars = NULL, 
         cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
         cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
         fig.align = "default", fig.path = "R_basics_files/figure-html/", 
@@ -2815,13 +2874,14 @@ output$`tutorial-exercise-lt5-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "lt5", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "lt5", 
-    code = "list_data[[\"category\"]] <- 'C9'", opts = list(label = "\"lt5\"", 
-        exercise = "TRUE"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
-    options = list(eval = FALSE, echo = TRUE, results = "markup", 
+learnr:::store_exercise_cache(structure(list(label = "lt5", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "lt5", code = "list_data[[\"category\"]] <- 'C9'", 
+        opts = list(label = "\"lt5\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
         background = "#F7F7F7", strip.white = TRUE, cache = 0, 
@@ -2853,16 +2913,18 @@ output$`tutorial-exercise-cs1-output` <- renderUI({
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "cs1", global_setup = structure(c("library(learnr)", 
-"knitr::opts_chunk$set(echo = FALSE)"), chunk_opts = list(label = "setup", 
-    include = FALSE)), setup = NULL, chunks = list(list(label = "cs1", 
-    code = "", opts = list(label = "\"cs1\"", exercise = "TRUE"), 
-    engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = NULL, tests = NULL, options = list(eval = FALSE, 
-        echo = TRUE, results = "markup", tidy = FALSE, tidy.opts = NULL, 
-        collapse = FALSE, prompt = FALSE, comment = NA, highlight = FALSE, 
-        size = "normalsize", background = "#F7F7F7", strip.white = TRUE, 
-        cache = 0, cache.path = "R_basics_cache/html/", cache.vars = NULL, 
+learnr:::store_exercise_cache(structure(list(label = "cs1", global_setup = structure(c("for (pkg in c('learnr','DiagrammeR')){", 
+"  if(!require(pkg,character.only = T)){", "  install.packages(pkg)", 
+"}", "}", "", "library(learnr)", "knitr::opts_chunk$set(echo = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "cs1", code = "", opts = list(
+        label = "\"cs1\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "R_basics_cache/html/", cache.vars = NULL, 
         cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
         cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
         fig.align = "default", fig.path = "R_basics_files/figure-html/", 

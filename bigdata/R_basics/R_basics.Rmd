@@ -5,6 +5,12 @@ runtime: shiny_prerendered
 ---
 
 ```{r setup, include=FALSE}
+for (pkg in c('learnr','DiagrammeR')){
+  if(!require(pkg,character.only = T)){
+  install.packages(pkg)
+}
+}
+
 library(learnr)
 knitr::opts_chunk$set(echo = FALSE)
 ```
