@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>第九讲：基于工作经历与引文网络的姓名消岐算法</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="史冬波" />
+    <meta name="date" content="2023-12-18" />
+    <script src="libs/header-attrs-2.24/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <script src="libs/clipboard-2.0.6/clipboard.min.js"></script>
+    <link href="libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+    <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
+    <link rel="stylesheet" href="css/nhsr.css" type="text/css" />
+    <link rel="stylesheet" href="css/nhsr-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+class: title-slide, left, bottom
+
+# 第九讲：基于工作经历与引文网络的姓名消岐算法
+----
+## **姓名歧义问题、解决思路与瓶颈、新算法**
+### 史冬波
+### 2023-12-18
+
+---
+# 课前准备
+
+- 使用到R语言dplyr、tidyr包
+
+- 知识点：循环、表连接、正则表达式、字符处理函数
+ 
+- 数据scientist.csv、cddt_paper.csv、cite.csv、inst_wos_dict.csv
+
+---
+
+# 学习目标
+
+- 论文作者姓名歧义的问题与当前的解决思路
+
+- 主要论文数据库的作者识别号的覆盖率、准确性
+
+- 基于职业经历与引文网络的消歧算法
+
+---
+
+# 姓名歧义问题的重要性
+
+--
+
+- 以科学家、科研团队为研究单位的应用经济学研究，需要以科学家的发表记录为基础计算因变量
+
+--
+
+- 发表记录的准确性影响研究结论的信度
+
+    - 错误估计系数大小
+    
+    - 错位估计系数方向
+
+--
+
+- 发表记录的代表性影响研究结论的效度
+
+    - 基于高产科学家的样本企图得出适用于所有科学家的结论
+    
+--
+
+- 这一问题的解决是科学经济学研究的基础设施（公地悲剧）
+
+    - Torvik(2009) 一个算法支持了美国科学经济学的一大批经济学顶刊论文
+
+---
+
+# 姓名歧义问题的界定
+
+--
+
+- 确定作者署名相同或相近的两篇学术文献是否指向同一学者
+
+--
+
+- 一人多名问题，即同一个人由于名字的改变、姓名变体、输入错误或使用笔名等原因而出现多个不同的名字
+
+--
+
+- 一名多人问题，如何将姓名完全一样的研究人员的学术文献区分为不同自然人的文献
+
+--
+
+- 华人科学家的重名现象最为严重
+
+    - 在华人排名前三的姓氏 “Wang”、“Zhang”、“Li”占据了人口总数21%
+    
+    - 华人姓名的拼音完全相同加重一名多人的问题
+    
+    - 统计WOS库凝聚态物理领域作者出现数量最多的前20名，有18名科学家为华裔姓名，包括 “Li, Wei”、 “Zhang, Lei” 、“Wang, Wei” 、“Zhang, Wei”等等
+
+---
+
+# 当前姓名消歧问题的解决思路
+
+- 作者主动标注（实验室与个人主页、谷歌学术、ORCID、Researchgate）
+
+    - 除ORCID外，其他来源无法直接与论文数据库连接，大量的人工成本
+    
+    - 覆盖率的问题，年轻的、高产的科学家、大陆高校与本土科学家不太重视
+
+- 算法自动聚类
+    
+    - 监督算法（训练集直接影响算法的效果，例如openalex以orcid训练集）
+    
+    - 非监督算法（效果比较差）
+    
+    - 基于规则的算法（应用场景受限）
+    
+    - 大部分算法不开源代码和结果，需要大量计算资源
+
+- 科技论文数据库的作者识别号，综合使用前两种方法
+
+    - 使用便捷，在不同群体的覆盖率和准确性有待检验
+
+---
+
+# 科技论文数据库的作者识别号
+
+&lt;img src="img/09/idaccuracy1.png" width="100%" /&gt;
+
+---
+
+&lt;img src="img/09/idaccuracy2.png" width="100%" /&gt;
+
+---
+
+&lt;br/&gt;
+&lt;br/&gt;
+
+&lt;img src="img/09/idaccuracy3.png" width="100%" /&gt;
+
+还不清楚是否会影响研究结论，请关注后续的工作论文
+
+---
+
+# 回想一下我们是如何确认另一个人的论文的
+
+--
+
+- 工作单位与作者署名与科学家的简历要完全对应
+
+    - Dongbo Shi; Shanghai Jiao Tong Univ, Sch Int &amp; Publ Affairs, Shanghai 200030, Peoples R China; 2023
+    
+    - D Shi; Shanghai Jiao Tong Univ, Sch Int &amp; Publ Affairs, Shanghai 200030, Peoples R China; 2023
+    
+    - Dongbo Shi; Heidelberg Univ, COS, D-69120 Heidelberg, Germany; 2023
+    
+---
+
+- 研究话题（看上去）是匹配的
+
+    - OBERON3 and SUPPRESSOR OF MAX2 1-LIKE proteins form a regulatory module driving phloem development
+    
+    - The minimum wage and the locations of new business entries in China: Estimates based on a refined border approach
+    
+    - Has China's Young Thousand Talents program been successful in recruiting and nurturing top-caliber scientists?
+    
+    - Changing carbon content of Chinese coal and implications for emissions of CO2
+    
+
+---
+
+# 作者职业经历与引文网络的算法
+
+- 全名署名、以及工作履历信息的配对，当同一个单位内部不存在同名科学家的时候是完全准确的，当同一个单位存在同名科学家的时候，（除了熟人）实际上是无法区分的
+
+- 缩写署名不靠谱，不能简单当做全名署名处理
+
+- 自我引用是普遍，可用于添加
+
+- 研究话题信息不好利用：材料化学vs材料物理
+
+---
+
+# 算法的应用场景
+
+- 以科学家个体为研究对象
+    
+    - 本来就需要收集科学家的个人经历
+    
+- 对数据质量要求高的研究（有重大影响的、开源数据的、有人会复现的）
+
+- 使用到论文引文数据的研究
+
+---
+
+# 算法的优势
+
+- 准确率高，扩展性强
+
+&lt;img src="img/09/cvaccuracy.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+- 所需计算资源小
+
+- 有高水平期刊背书
+
+---
+
+# 算法思路
+
+.pull-left[
+&lt;img src="img/09/algorithm.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+
+1. 利用全名署名与工作经历筛选论文
+
+2. 通过引文关系添加缩写署名的论文
+
+3. 通过工作经历再次筛选添加的论文
+
+*存在延迟发表的情况，例如离开交通大学之后，我在交大的工作才发表出来*
+
+]
+
+---
+
+# 算法的前期准备
+
+- 标准化机构写法
+
+    - 发现在学院、系的写法过于复杂，因此标准化学校、研究所层级
+    
+    - 降低精准度，配合人工检查
+
+- 标准化机构在数据库中的地址写法
+
+    - 正则表达式，例如uc berkeley; univ cal berkeley
+    
+    - inst phys, cas; cas, inst phys; chinese acad sci, inst phys
+    
+- 通过开源的方式提供数据，并开放维护
+
+    - github仓库https://github.com/DongboShi/cvdisam
+
+- 从Web of Science下载备选论文数据
+
+- 下载备选论文间的引文关系
+
+---
+
+# 算法的R语言实现
+
+代码的思路是函数只处理一个科学家，因此不需要科学家id
+
+- 输入数据：cddt_paper::pid-pubyear-affiliation-initials
+
+- 输入数据：cv::inst-startyear-endyear
+
+- 输入数据: cite::citing_pid-cited_pid
+
+- 输入数据：dict
+
+---
+
+## 函数
+
+- 第一个函数使用dict来转换，根据数据库的类型定义转换表
+
+- 第二个函数使用cv筛选
+
+- 第三个函数通过引用添加一次操作，选出有引用关系的pid，循环放入主函数
+
+- 第四个是主函数，完成所有的操作
+
+---
+
+
+```r
+inst_map &lt;- function(cv,inst_dict,db = "wos"){
+  if(db == "wos"){
+    cv &lt;- cv %&gt;% inner_join(inst_dict %&gt;% select(inst, wos) %&gt;% distinct(),
+                            by = "inst") %&gt;%
+      select(wos,startyear,endyear) %&gt;% distinct()
+  }else if(db == "scopus"){
+    cv &lt;- cv %&gt;% inner_join(inst_dict %&gt;% select(inst, scopus) %&gt;%
+                                distinct(),by = "inst") %&gt;%
+      select(scopus,startyear,endyear) %&gt;%
+      distinct()
+  }else if(db == "openalex"){
+    cv &lt;- cv %&gt;% inner_join(inst_dict %&gt;% select(inst, openalex) %&gt;%
+                                distinct(), by = "inst") %&gt;%
+      select(openalex,startyear,endyear) %&gt;%
+      distinct()
+  }else print("The database is not suppoted by now, please contact the authors in Github.")
+  names(cv) &lt;- c("inst","startyear","endyear")
+  return(cv)
+}
+```
+
+---
+
+
+```r
+cv_filter &lt;- function(paper,cv,year_lag=2){
+    paper &lt;- paper %&gt;%
+    mutate(aff = str_to_lower(aff),
+           pub_year = as.numeric(pub_year)) %&gt;%
+    filter()
+    cv &lt;- cv %&gt;%
+    mutate(inst = str_to_lower(inst),
+           startyear = as.numeric(startyear),
+           endyear = as.numeric(endyear))
+    result &lt;- paper %&gt;%
+        crossing(cv) %&gt;%
+        filter(pub_year &gt;= startyear,
+               pub_year &lt;= endyear + year_lag,
+*              str_detect(aff,inst)) %&gt;%
+        select(pid) %&gt;% 
+        distinct() %&gt;% 
+        pull(pid)
+  return(result)
+}
+```
+
+---
+
+
+```r
+cite_glue &lt;- function(pid,cite){
+    pid_1 &lt;- cite %&gt;%
+        filter(citing_pid %in% pid) %&gt;%
+        select(cited_pid) %&gt;%
+        distinct() %&gt;%
+        pull(1)
+    pid_2 &lt;- cite %&gt;%
+        filter(cited_pid %in% pid) %&gt;%
+        select(citing_pid) %&gt;%
+        distinct() %&gt;%
+        pull(1)
+
+    pid_add &lt;- unique(c(pid_1,pid_2))
+    pid_add &lt;- pid_add[!pid_add%in%pid]
+    return(pid_add)
+}
+```
+
+---
+
+
+```r
+cv_disam &lt;- function(paper, cv, year_lag1=2, year_lag2=2, cite){
+  paper_1 &lt;- paper %&gt;% filter(initials == 0)
+  paper_2 &lt;- paper %&gt;% filter(initials == 1)
+  # 第一步筛选
+  pid_stage1 &lt;- cv_filter(paper_1, cv, year_lag1)
+  cite &lt;- cite %&gt;% filter(citing_pid %in% c(pid_stage1,paper_2$pid),
+                          cited_pid %in% c(pid_stage1,paper_2$pid))
+  pid_core &lt;- pid_stage1
+  # 第二步循环添加
+  while(1){
+    pid_add &lt;- cite_glue(pid_core,cite)
+    if(length(pid_add)==0){break} else{
+      pid_core &lt;- c(pid_core, pid_add)}}
+  pid_stage2 &lt;- setdiff(pid_core,pid_stage1)
+  # 第三步对pid_stage2使用cv筛选
+  paper_3 &lt;- paper_2 %&gt;% filter(pid %in% pid_stage2)
+  pid_stage3 &lt;- cv_filter(paper_3, cv, year_lag2)
+  pid_disam &lt;- c(pid_stage1,pid_stage3)
+  return(pid_disam)
+}
+```
+
+---
+
+
+```r
+library(readr)
+library(dplyr)
+library(stringr)
+scientist &lt;- read_csv("scientist.csv")
+inst_wos_dict &lt;- read_csv("inst_wos_dict.csv")
+cddt_paper &lt;- read_csv("cddt_paper.csv")
+cite_all &lt;- read_csv("cite.csv")
+
+scientist &lt;- scientist %&gt;% mutate(inst = str_to_lower(inst))
+inst_wos_dict &lt;- inst_wos_dict %&gt;% mutate(inst = str_to_lower(inst))
+cite_all &lt;- cite_all %&gt;% setNames(c("citing_pid","cited_pid"))
+```
+
+---
+
+```r
+result &lt;- data.frame(uniqueID = vector(),pid = vector())
+for(id in unique(scientist$uniqueID)){
+  cv &lt;- scientist %&gt;% filter(uniqueID == id)
+  cv &lt;- inst_map(cv = cv,inst_dict =inst_wos_dict)
+  paper &lt;- cddt_paper %&gt;%
+    filter(uniqueID == id) %&gt;%
+    filter(item_type == "Article") %&gt;%
+    mutate(initials = as.numeric(type == 2)) %&gt;%
+    rename(pid = ut_char,aff = addr) %&gt;%
+    select(pid, aff, pub_year, initials) %&gt;%
+    distinct()
+  cite &lt;- cite_all %&gt;% filter(citing_pid %in% paper$pid, 
+                              cited_pid %in% paper$pid)
+  pid_disam &lt;- cv_disam(paper, cv, year_lag1 = 2, year_lag2 = 2, cite)
+  result &lt;- rbind(result,data.frame(uniqueID = id, pid = pid_disam))
+  print(id)
+}
+```
+
+---
+
+欢迎大家引用
+
+刘玮辰,史冬波,李江.基于职业经历和引文网络的华人姓名消歧算法[J].信息资源管理学报,2020,10(06):82-89+100.DOI:10.13365/j.jirm.2020.06.082
+
+Dongbo Shi et al. ,Has China’s Young Thousand Talents program been successful in recruiting and nurturing top-caliber scientists?.Science379,62-65(2023).DOI:10.1126/science.abq1218
+
+---
+
+# 课后作业
+
+- 将本算法在Python中实现
+
+---
+
+class: inverse,middle,center
+# 能解决问题的算法才是好算法
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "googlecode",
+"highlightLines": true,
+"highlightLanguage": "r",
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--Hat-tip: https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/-->
+<style>
+.logo {
+  background-image: url(img/IDEALAB.jpeg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 110px;
+  height: 128px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

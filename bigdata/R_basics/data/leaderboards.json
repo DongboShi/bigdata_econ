@@ -1,0 +1,37 @@
+{
+  "version": 3,
+  "dataType": "LEADERBOARD",
+  "query": "query-string",
+  "cacheKey": "v3.leaderboard.OPN-2019-DIV01-FIT01000-PRF00-CZ00-CC00-RXD.0.1",
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 3912,
+    "totalCompetitors": 195562
+  },
+  "sort": 0,
+  "competition": {
+    "year": "2019",
+    "competitionType": "open",
+    "competitionId": 36,
+    "fittestIn": "1",
+    "inSubCat": "000",
+    "countryId": "",
+    "countryName": "",
+    "scaled": "0",
+    "division": "1"
+  },
+  "ordinals": [
+    {
+      "ordinal": "1",
+      "columnName": "1"
+    },
+    {
+      "ordinal": "2",
+      "columnName": "2"
+    },
+    {
+      "ordinal": "5",
+      "columnName": "5"
+    }
+  ]
+}

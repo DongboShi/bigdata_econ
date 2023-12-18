@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>第十讲：交互图、动图与大屏</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="史冬波" />
+    <meta name="date" content="2023-12-18" />
+    <script src="libs/header-attrs-2.24/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <script src="libs/clipboard-2.0.6/clipboard.min.js"></script>
+    <link href="libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+    <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
+    <script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+    <script src="libs/plotly-binding-4.10.0/plotly.js"></script>
+    <script src="libs/typedarray-0.1/typedarray.min.js"></script>
+    <script src="libs/jquery-3.5.1/jquery.min.js"></script>
+    <link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+    <script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+    <link href="libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet" />
+    <script src="libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="css/nhsr.css" type="text/css" />
+    <link rel="stylesheet" href="css/nhsr-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+class: title-slide, left, bottom
+
+# 第十讲：交互图、动图与大屏
+----
+## **图的组合与互动**
+### 史冬波
+### 2023-12-18
+
+---
+# 课前准备
+
+- 使用到R语言ggpubr,ggsci,ggthemes,scales,NHSRtheme,ggplotly,gganimate,flexdashboard,colorspace包
+
+- `install.packages('remotes')`
+
+- `remotes::install_github('nhs-r-community/NHSRtheme')`
+ 
+- 数据pub_211.csv、EconomistData.csv
+
+---
+
+# 学习目标
+
+- ggpubr组合图形
+
+- 调色板
+
+- gganimate制作动图
+
+- ggplotly制作交互图
+
+- flexdashboard制作大屏
+
+---
+
+# 图形组合
+
+使用`ggpubr`包中的`ggarrange`函数来完成图形组合
+
+- 被组合的图形，依次作为参数输入函数
+
+- 并使用`nrow`和`ncol`指定组合的行与列，`labels`参数为子图指定标签。组合图形会自动对齐坐标轴
+
+
+```r
+economist &lt;- read_csv("data/08/EconomistData.csv")
+```
+
+---
+
+
+```r
+p1 &lt;- ggplot(economist, aes(x = CPI, y = HDI,color = Region)) + 
+  geom_point(shape = 21,size = 3,fill = "white",stroke = 1.5) +
+  geom_smooth(method = "lm",color = "red",formula = y~ poly(x, 2),se = FALSE) + 
+  scale_x_continuous("Corruption Perceptions Index, 2011 (10 = least corrupt)",breaks = 1:10,limits = c(1,10.2),expand = c(0,0)) +
+  scale_y_continuous("Human Development Index, 2011 (1 = best)",breaks = seq(0.2,1,0.1),limits = c(0.2,1.0)) + 
+* scale_color_discrete(labels = expression(paste(R^2, "= 56%"))) +
+  scale_color_manual(values=c("#014d64","#01a2d9","#7ad2f6","#00887d","#ee8f71","#7c260b"),
+                     labels=c("Americas","Asia Pacific",
+                              "East Europe &amp; Central Asia",
+                              "West Europe","East Asia",
+                              "South Asia")) +
+    labs(title = "Corruption and human development",
+       caption = "Source: Transparency International; UN Human Development Report") +
+    guides(colour = guide_legend(title = element_blank()),
+         linetype = guide_legend(title = element_blank())) 
+
+p2 &lt;- ggplot(economist, aes(x = CPI, y = HDI)) + stat_summary(fun = mean, geom = "col")
+p3 &lt;- ggplot(economist, aes(x = Region, y = HDI)) + stat_summary(fun = mean, geom = "col") +
+    scale_x_discrete(labels = c("AM","APE","EECA","EUEP","MENA","SSA"))
+```
+
+
+---
+
+
+```r
+mytheme &lt;- theme(panel.background = element_rect(fill = "white"),
+        panel.grid.major.y = element_line(color = "grey",linetype = "solid"),
+        panel.grid.major.x = element_blank(),
+        axis.line.x = element_line(color = "black"),
+        axis.text.x = element_text(color = "black",size = 8),
+        axis.ticks.length.x = unit(-0.2, "cm"),
+        axis.ticks.length.y = unit(0.5, "cm"),
+        axis.ticks.y = element_line(color = "grey"),
+        axis.text.y = element_text(color = "black",size = 8),
+        axis.title = element_text(face = "italic",size = 8),
+        plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0,size = 8),
+        legend.position = "top",
+        legend.box = "horizontal",
+        legend.title = element_blank(),
+        legend.key = element_blank(),
+        legend.justification=c(0.45,1)) 
+```
+
+---
+
+
+```r
+p4 &lt;- p1 + mytheme + guides(colour = FALSE, linetype = FALSE)
+```
+
+```
+## Warning: The `&lt;scale&gt;` argument of `guides()` cannot be `FALSE`. Use "none" instead as
+## of ggplot2 3.3.4.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.
+```
+
+```r
+p5 &lt;- p2 + mytheme
+p6 &lt;- p3 + mytheme + theme(axis.text.x = element_text(color = "black",size = 9))
+print(p4)
+```
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-4-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+print(p5)
+```
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-5-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+library(ggpubr)
+figure &lt;- ggarrange(p4, p5, p6, 
+          labels = c("A", "B", "C"),
+          ncol = 1, nrow = 3)
+print(figure)
+```
+
+---
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-8-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+`annotate_figure`函数可以用于为组合后的图形添加注释
+
+
+```r
+annotate_figure(figure,
+                top = text_grob("Visualizing mpg", color = "red", face = "bold", size = 14),
+                bottom = text_grob("Data source: \n mtcars data set", color = "blue",
+                                   hjust = 1, x = 1, face = "italic", size = 10),
+                left = text_grob("Figure arranged using ggpubr", color = "green", rot = 90),
+                right = "I'm done, thanks :-)!",
+                fig.lab = "Figure 1", fig.lab.face = "bold")
+```
+
+- `ggpubr`为制作可发表的图形，还提供了诸多函数，例如，`ggtexttable`可以将表格变成图形对象；`ggparagraph`将文本变成图形对象
+
+- 更多内容阅读官方文档，&lt;https://rpkgs.datanovia.com/ggpubr&gt;
+
+---
+
+![](10_GG2_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+
+# 调色板
+
+- 选择优雅的颜色是高质量数据可视化的保障
+
+- 艺术造诣和编程能力并不是互斥的技能点
+
+- `ggsci`提供了多种杂志的配色方案
+
+- `NHSRtheme`提供了英国国民保健署的一套配色方案
+
+- `colorspace`提供了通用配色模板
+
+---
+
+查看并使用经济学人杂志的调色板
+
+
+```r
+library(ggthemes)
+library(scales)
+library(ggsci)
+show_col(economist_pal()(9))
+```
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-11-1.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+```r
+economist_pal()(9)
+```
+
+```
+## [1] "#6794a7" "#014d64" "#01a2d9" "#7ad2f6" "#00887d" "#76c0c1" "#7c260b"
+## [8] "#ee8f71" "#adadad"
+```
+
+---
+
+science杂志的配色
+
+```r
+show_col(pal_aaas()(9))
+```
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-12-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+```r
+pal_aaas()(9)
+```
+
+```
+## [1] "#3B4992FF" "#EE0000FF" "#008B45FF" "#631879FF" "#008280FF" "#BB0021FF"
+## [7] "#5F559BFF" "#A20056FF" "#808180FF"
+```
+
+---
+
+
+```r
+p4 + scale_color_aaas()
+```
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-13-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+# install.packages('remotes')
+# remotes::install_github('nhs-r-community/NHSRtheme')
+library(NHSRtheme)
+p4 + scale_colour_nhs()
+```
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+### colorspace
+
+colorspace包中共包括三种类型的配色模板——Qualitative、Sequential、Diverging，可以使用`hcl_palettes`查看全部配色或某一类型配色
+
+
+```r
+library(colorspace)
+hcl_palettes(plot = TRUE)
+```
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-15-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+hcl_palettes("sequential (single-hue)", n = 10, plot = TRUE) # n表示展示的颜色数量
+```
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-16-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+&lt;br/&gt;
+
+通过`_hcl`函数可以查看相应类型中的颜色十六进制代码，也可以通过`swatchplot`函数进行可视化
+
+
+```r
+diverging_hcl(n = 7, "Broc")
+```
+
+```
+## [1] "#002B4B" "#2F6489" "#92A6BA" "#F9F9F9" "#A6A587" "#636212" "#292800"
+```
+
+---
+
+
+```r
+p4 + scale_color_discrete_qualitative(palette = "Pastel1")
+```
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-18-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# 交互图
+
+`plotly`扩展包可以将`ggplot2`图以交互图的形式展示
+
+
+```r
+library(plotly);ggplotly(p4,height = 400)
+```
+
+<div id="htmlwidget-c162b77bf8b5895a1bc0" style="width:100%;height:400px;" class="plotly html-widget "></div>
+<script type="application/json" data-for="htmlwidget-c162b77bf8b5895a1bc0">{"x":{"data":[{"x":[3,7.2999999999999998,7.7999999999999998,3.7999999999999998,8.6999999999999993,7.2000000000000002,3.3999999999999999,4.7999999999999998,4.2000000000000002,5.2000000000000002,2.6000000000000001,2.7000000000000002,3.3999999999999999,2.7000000000000002,2.5,1.8,2.6000000000000001,3.2999999999999998,3,2.5,3.2999999999999998,2.2000000000000002,3.3999999999999999,7,5.7999999999999998,3,3.2000000000000002,7.0999999999999996,7],"y":[0.79700000000000004,0.77100000000000002,0.79300000000000004,0.71799999999999997,0.90800000000000003,0.80500000000000005,0.70999999999999996,0.74399999999999999,0.77600000000000002,0.72399999999999998,0.68899999999999995,0.71999999999999997,0.67400000000000004,0.57399999999999995,0.63300000000000001,0.45400000000000001,0.625,0.72699999999999998,0.77000000000000002,0.58899999999999997,0.76800000000000002,0.66500000000000004,0.72499999999999998,0.72299999999999998,0.71699999999999997,0.68000000000000005,0.76000000000000001,0.91000000000000003,0.78300000000000003],"text":["CPI: 3.0<br />HDI: 0.797<br />Region: Americas","CPI: 7.3<br />HDI: 0.771<br />Region: Americas","CPI: 7.8<br />HDI: 0.793<br />Region: Americas","CPI: 3.8<br />HDI: 0.718<br />Region: Americas","CPI: 8.7<br />HDI: 0.908<br />Region: Americas","CPI: 7.2<br />HDI: 0.805<br />Region: Americas","CPI: 3.4<br />HDI: 0.710<br />Region: Americas","CPI: 4.8<br />HDI: 0.744<br />Region: Americas","CPI: 4.2<br />HDI: 0.776<br />Region: Americas","CPI: 5.2<br />HDI: 0.724<br />Region: Americas","CPI: 2.6<br />HDI: 0.689<br />Region: Americas","CPI: 2.7<br />HDI: 0.720<br />Region: Americas","CPI: 3.4<br />HDI: 0.674<br />Region: Americas","CPI: 2.7<br />HDI: 0.574<br />Region: Americas","CPI: 2.5<br />HDI: 0.633<br />Region: Americas","CPI: 1.8<br />HDI: 0.454<br />Region: Americas","CPI: 2.6<br />HDI: 0.625<br />Region: Americas","CPI: 3.3<br />HDI: 0.727<br />Region: Americas","CPI: 3.0<br />HDI: 0.770<br />Region: Americas","CPI: 2.5<br />HDI: 0.589<br />Region: Americas","CPI: 3.3<br />HDI: 0.768<br />Region: Americas","CPI: 2.2<br />HDI: 0.665<br />Region: Americas","CPI: 3.4<br />HDI: 0.725<br />Region: Americas","CPI: 7.0<br />HDI: 0.723<br />Region: Americas","CPI: 5.8<br />HDI: 0.717<br />Region: Americas","CPI: 3.0<br />HDI: 0.680<br />Region: Americas","CPI: 3.2<br />HDI: 0.760<br />Region: Americas","CPI: 7.1<br />HDI: 0.910<br />Region: Americas","CPI: 7.0<br />HDI: 0.783<br />Region: Americas"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,255,255,1)","opacity":1,"size":11.338582677165356,"symbol":"circle","line":{"width":5.6692913385826778,"color":"rgba(1,77,100,1)"}},"hoveron":"points","name":"Americas","legendgroup":"Americas","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1.5,8.8000000000000007,2.7000000000000002,5.7000000000000002,2.1000000000000001,3.6000000000000001,3.1000000000000001,3,8,3.1000000000000001,4.2999999999999998,2.5,2.7000000000000002,1.5,2.2000000000000002,9.5,2.5,2.2000000000000002,2.6000000000000001,3.8999999999999999,9.1999999999999993,2.7000000000000002,3.2999999999999998,3.3999999999999999,2.3999999999999999,3.1000000000000001,3.5],"y":[0.39800000000000002,0.92900000000000005,0.5,0.52200000000000002,0.52300000000000002,0.68700000000000006,0.54700000000000004,0.61699999999999999,0.90100000000000002,0.624,0.76100000000000001,0.66100000000000003,0.65300000000000002,0.48299999999999998,0.45800000000000002,0.90800000000000003,0.504,0.46600000000000003,0.64400000000000002,0.68799999999999994,0.86599999999999999,0.51000000000000001,0.69099999999999995,0.68200000000000005,0.495,0.70399999999999996,0.61699999999999999],"text":["CPI: 1.5<br />HDI: 0.398<br />Region: Asia Pacific","CPI: 8.8<br />HDI: 0.929<br />Region: Asia Pacific","CPI: 2.7<br />HDI: 0.500<br />Region: Asia Pacific","CPI: 5.7<br />HDI: 0.522<br />Region: Asia Pacific","CPI: 2.1<br />HDI: 0.523<br />Region: Asia Pacific","CPI: 3.6<br />HDI: 0.687<br />Region: Asia Pacific","CPI: 3.1<br />HDI: 0.547<br />Region: Asia Pacific","CPI: 3.0<br />HDI: 0.617<br />Region: Asia Pacific","CPI: 8.0<br />HDI: 0.901<br />Region: Asia Pacific","CPI: 3.1<br />HDI: 0.624<br />Region: Asia Pacific","CPI: 4.3<br />HDI: 0.761<br />Region: Asia Pacific","CPI: 2.5<br />HDI: 0.661<br />Region: Asia Pacific","CPI: 2.7<br />HDI: 0.653<br />Region: Asia Pacific","CPI: 1.5<br />HDI: 0.483<br />Region: Asia Pacific","CPI: 2.2<br />HDI: 0.458<br />Region: Asia Pacific","CPI: 9.5<br />HDI: 0.908<br />Region: Asia Pacific","CPI: 2.5<br />HDI: 0.504<br />Region: Asia Pacific","CPI: 2.2<br />HDI: 0.466<br />Region: Asia Pacific","CPI: 2.6<br />HDI: 0.644<br />Region: Asia Pacific","CPI: 3.9<br />HDI: 0.688<br />Region: Asia Pacific","CPI: 9.2<br />HDI: 0.866<br />Region: Asia Pacific","CPI: 2.7<br />HDI: 0.510<br />Region: Asia Pacific","CPI: 3.3<br />HDI: 0.691<br />Region: Asia Pacific","CPI: 3.4<br />HDI: 0.682<br />Region: Asia Pacific","CPI: 2.4<br />HDI: 0.495<br />Region: Asia Pacific","CPI: 3.1<br />HDI: 0.704<br />Region: Asia Pacific","CPI: 3.5<br />HDI: 0.617<br />Region: Asia Pacific"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,255,255,1)","opacity":1,"size":11.338582677165356,"symbol":"circle","line":{"width":5.6692913385826778,"color":"rgba(1,162,217,1)"}},"hoveron":"points","name":"Asia Pacific","legendgroup":"Asia Pacific","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3.1000000000000001,2.6000000000000001,2.3999999999999999,2.3999999999999999,3.2000000000000002,4,4.0999999999999996,2.7000000000000002,2.1000000000000001,4,3.2999999999999998,2.2999999999999998,4.2000000000000002,1.6000000000000001,2.2999999999999998,1.6000000000000001],"y":[0.73899999999999999,0.71599999999999997,0.69999999999999996,0.75600000000000001,0.73299999999999998,0.79600000000000004,0.73299999999999998,0.745,0.61499999999999999,0.77100000000000002,0.76600000000000001,0.60699999999999998,0.69899999999999995,0.68600000000000005,0.72899999999999998,0.64100000000000001],"text":["CPI: 3.1<br />HDI: 0.739<br />Region: East EU Cemt Asia","CPI: 2.6<br />HDI: 0.716<br />Region: East EU Cemt Asia","CPI: 2.4<br />HDI: 0.700<br />Region: East EU Cemt Asia","CPI: 2.4<br />HDI: 0.756<br />Region: East EU Cemt Asia","CPI: 3.2<br />HDI: 0.733<br />Region: East EU Cemt Asia","CPI: 4.0<br />HDI: 0.796<br />Region: East EU Cemt Asia","CPI: 4.1<br />HDI: 0.733<br />Region: East EU Cemt Asia","CPI: 2.7<br />HDI: 0.745<br />Region: East EU Cemt Asia","CPI: 2.1<br />HDI: 0.615<br />Region: East EU Cemt Asia","CPI: 4.0<br />HDI: 0.771<br />Region: East EU Cemt Asia","CPI: 3.3<br />HDI: 0.766<br />Region: East EU Cemt Asia","CPI: 2.3<br />HDI: 0.607<br />Region: East EU Cemt Asia","CPI: 4.2<br />HDI: 0.699<br />Region: East EU Cemt Asia","CPI: 1.6<br />HDI: 0.686<br />Region: East EU Cemt Asia","CPI: 2.3<br />HDI: 0.729<br />Region: East EU Cemt Asia","CPI: 1.6<br />HDI: 0.641<br />Region: East EU Cemt Asia"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,255,255,1)","opacity":1,"size":11.338582677165356,"symbol":"circle","line":{"width":5.6692913385826778,"color":"rgba(122,210,246,1)"}},"hoveron":"points","name":"East EU Cemt Asia","legendgroup":"East EU Cemt Asia","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[7.7999999999999998,7.5,3.2999999999999998,6.2999999999999998,4.4000000000000004,9.4000000000000004,6.4000000000000004,9.4000000000000004,7,8,3.3999999999999999,4.5999999999999996,8.3000000000000007,7.5,3.8999999999999999,4.2000000000000002,4.7999999999999998,8.5,5.5999999999999996,8.9000000000000004,9,5.5,6.0999999999999996,3.6000000000000001,4,5.9000000000000004,6.2000000000000002,9.3000000000000007,8.8000000000000007,7.7999999999999998],"y":[0.88500000000000001,0.88600000000000001,0.77100000000000002,0.83999999999999997,0.86499999999999999,0.89500000000000002,0.83499999999999996,0.88200000000000001,0.88400000000000001,0.90500000000000003,0.86099999999999999,0.81599999999999995,0.89800000000000002,0.90800000000000003,0.874,0.80500000000000005,0.81000000000000005,0.86699999999999999,0.83199999999999996,0.91000000000000003,0.94299999999999995,0.81299999999999994,0.80900000000000005,0.78100000000000003,0.83399999999999996,0.88400000000000001,0.878,0.90400000000000003,0.90300000000000002,0.86299999999999999],"text":["CPI: 7.8<br />HDI: 0.885<br />Region: EU W. Europe","CPI: 7.5<br />HDI: 0.886<br />Region: EU W. Europe","CPI: 3.3<br />HDI: 0.771<br />Region: EU W. Europe","CPI: 6.3<br />HDI: 0.840<br />Region: EU W. Europe","CPI: 4.4<br />HDI: 0.865<br />Region: EU W. Europe","CPI: 9.4<br />HDI: 0.895<br />Region: EU W. Europe","CPI: 6.4<br />HDI: 0.835<br />Region: EU W. Europe","CPI: 9.4<br />HDI: 0.882<br />Region: EU W. Europe","CPI: 7.0<br />HDI: 0.884<br />Region: EU W. Europe","CPI: 8.0<br />HDI: 0.905<br />Region: EU W. Europe","CPI: 3.4<br />HDI: 0.861<br />Region: EU W. Europe","CPI: 4.6<br />HDI: 0.816<br />Region: EU W. Europe","CPI: 8.3<br />HDI: 0.898<br />Region: EU W. Europe","CPI: 7.5<br />HDI: 0.908<br />Region: EU W. Europe","CPI: 3.9<br />HDI: 0.874<br />Region: EU W. Europe","CPI: 4.2<br />HDI: 0.805<br />Region: EU W. Europe","CPI: 4.8<br />HDI: 0.810<br />Region: EU W. Europe","CPI: 8.5<br />HDI: 0.867<br />Region: EU W. Europe","CPI: 5.6<br />HDI: 0.832<br />Region: EU W. Europe","CPI: 8.9<br />HDI: 0.910<br />Region: EU W. Europe","CPI: 9.0<br />HDI: 0.943<br />Region: EU W. Europe","CPI: 5.5<br />HDI: 0.813<br />Region: EU W. Europe","CPI: 6.1<br />HDI: 0.809<br />Region: EU W. Europe","CPI: 3.6<br />HDI: 0.781<br />Region: EU W. Europe","CPI: 4.0<br />HDI: 0.834<br />Region: EU W. Europe","CPI: 5.9<br />HDI: 0.884<br />Region: EU W. Europe","CPI: 6.2<br />HDI: 0.878<br />Region: EU W. Europe","CPI: 9.3<br />HDI: 0.904<br />Region: EU W. Europe","CPI: 8.8<br />HDI: 0.903<br />Region: EU W. Europe","CPI: 7.8<br />HDI: 0.863<br />Region: EU W. Europe"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,255,255,1)","opacity":1,"size":11.338582677165356,"symbol":"circle","line":{"width":5.6692913385826778,"color":"rgba(0,136,125,1)"}},"hoveron":"points","name":"EU W. Europe","legendgroup":"EU W. Europe","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[2.8999999999999999,5.0999999999999996,2.8999999999999999,1.8,5.7999999999999998,4.5,4.5999999999999996,2.5,3.3999999999999999,4.7999999999999998,7.2000000000000002,4.4000000000000004,3.7999999999999998,6.7999999999999998,2.1000000000000001],"y":[0.69799999999999995,0.80600000000000005,0.64400000000000002,0.57299999999999995,0.88800000000000001,0.69799999999999995,0.76000000000000001,0.73899999999999999,0.58199999999999996,0.70499999999999996,0.83099999999999996,0.77000000000000002,0.69799999999999995,0.84599999999999997,0.46200000000000002],"text":["CPI: 2.9<br />HDI: 0.698<br />Region: MENA","CPI: 5.1<br />HDI: 0.806<br />Region: MENA","CPI: 2.9<br />HDI: 0.644<br />Region: MENA","CPI: 1.8<br />HDI: 0.573<br />Region: MENA","CPI: 5.8<br />HDI: 0.888<br />Region: MENA","CPI: 4.5<br />HDI: 0.698<br />Region: MENA","CPI: 4.6<br />HDI: 0.760<br />Region: MENA","CPI: 2.5<br />HDI: 0.739<br />Region: MENA","CPI: 3.4<br />HDI: 0.582<br />Region: MENA","CPI: 4.8<br />HDI: 0.705<br />Region: MENA","CPI: 7.2<br />HDI: 0.831<br />Region: MENA","CPI: 4.4<br />HDI: 0.770<br />Region: MENA","CPI: 3.8<br />HDI: 0.698<br />Region: MENA","CPI: 6.8<br />HDI: 0.846<br />Region: MENA","CPI: 2.1<br />HDI: 0.462<br />Region: MENA"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,255,255,1)","opacity":1,"size":11.338582677165356,"symbol":"circle","line":{"width":5.6692913385826778,"color":"rgba(238,143,113,1)"}},"hoveron":"points","name":"MENA","legendgroup":"MENA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[2,3,6.0999999999999996,3,1.8999999999999999,2.5,5.5,2.2000000000000002,2,2.3999999999999999,3,1.8999999999999999,2.5,2.7000000000000002,3,3.5,3.8999999999999999,2.1000000000000001,2.2000000000000002,2.2000000000000002,3.5,3.2000000000000002,3,3,2.7999999999999998,2.3999999999999999,5.0999999999999996,2.7000000000000002,4.4000000000000004,2.5,2.3999999999999999,5,2.8999999999999999,4.7999999999999998,2.5,4.0999999999999996,3.1000000000000001,2.3999999999999999,2.3999999999999999,3.2000000000000002,2.2000000000000002],"y":[0.48599999999999999,0.42699999999999999,0.63300000000000001,0.33100000000000002,0.316,0.48199999999999998,0.56799999999999995,0.34300000000000003,0.32800000000000001,0.433,0.42999999999999999,0.53700000000000003,0.34899999999999998,0.36299999999999999,0.67400000000000004,0.41999999999999998,0.54100000000000004,0.34399999999999997,0.35299999999999998,0.50900000000000001,0.45000000000000001,0.32900000000000001,0.47999999999999998,0.40000000000000002,0.35899999999999999,0.45300000000000001,0.72799999999999998,0.32200000000000001,0.625,0.29499999999999998,0.45900000000000002,0.42899999999999999,0.45900000000000002,0.77300000000000002,0.33600000000000002,0.61899999999999999,0.52200000000000002,0.435,0.44600000000000001,0.42999999999999999,0.376],"text":["CPI: 2.0<br />HDI: 0.486<br />Region: SSA","CPI: 3.0<br />HDI: 0.427<br />Region: SSA","CPI: 6.1<br />HDI: 0.633<br />Region: SSA","CPI: 3.0<br />HDI: 0.331<br />Region: SSA","CPI: 1.9<br />HDI: 0.316<br />Region: SSA","CPI: 2.5<br />HDI: 0.482<br />Region: SSA","CPI: 5.5<br />HDI: 0.568<br />Region: SSA","CPI: 2.2<br />HDI: 0.343<br />Region: SSA","CPI: 2.0<br />HDI: 0.328<br />Region: SSA","CPI: 2.4<br />HDI: 0.433<br />Region: SSA","CPI: 3.0<br />HDI: 0.430<br />Region: SSA","CPI: 1.9<br />HDI: 0.537<br />Region: SSA","CPI: 2.5<br />HDI: 0.349<br />Region: SSA","CPI: 2.7<br />HDI: 0.363<br />Region: SSA","CPI: 3.0<br />HDI: 0.674<br />Region: SSA","CPI: 3.5<br />HDI: 0.420<br />Region: SSA","CPI: 3.9<br />HDI: 0.541<br />Region: SSA","CPI: 2.1<br />HDI: 0.344<br />Region: SSA","CPI: 2.2<br />HDI: 0.353<br />Region: SSA","CPI: 2.2<br />HDI: 0.509<br />Region: SSA","CPI: 3.5<br />HDI: 0.450<br />Region: SSA","CPI: 3.2<br />HDI: 0.329<br />Region: SSA","CPI: 3.0<br />HDI: 0.480<br />Region: SSA","CPI: 3.0<br />HDI: 0.400<br />Region: SSA","CPI: 2.8<br />HDI: 0.359<br />Region: SSA","CPI: 2.4<br />HDI: 0.453<br />Region: SSA","CPI: 5.1<br />HDI: 0.728<br />Region: SSA","CPI: 2.7<br />HDI: 0.322<br />Region: SSA","CPI: 4.4<br />HDI: 0.625<br />Region: SSA","CPI: 2.5<br />HDI: 0.295<br />Region: SSA","CPI: 2.4<br />HDI: 0.459<br />Region: SSA","CPI: 5.0<br />HDI: 0.429<br />Region: SSA","CPI: 2.9<br />HDI: 0.459<br />Region: SSA","CPI: 4.8<br />HDI: 0.773<br />Region: SSA","CPI: 2.5<br />HDI: 0.336<br />Region: SSA","CPI: 4.1<br />HDI: 0.619<br />Region: SSA","CPI: 3.1<br />HDI: 0.522<br />Region: SSA","CPI: 2.4<br />HDI: 0.435<br />Region: SSA","CPI: 2.4<br />HDI: 0.446<br />Region: SSA","CPI: 3.2<br />HDI: 0.430<br />Region: SSA","CPI: 2.2<br />HDI: 0.376<br />Region: SSA"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,255,255,1)","opacity":1,"size":11.338582677165356,"symbol":"circle","line":{"width":5.6692913385826778,"color":"rgba(124,38,11,1)"}},"hoveron":"points","name":"SSA","legendgroup":"SSA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1.5,1.6012658227848102,1.7025316455696202,1.8037974683544304,1.9050632911392404,2.0063291139240507,2.1075949367088609,2.2088607594936711,2.3101265822784809,2.4113924050632911,2.5126582278481013,2.6139240506329111,2.7151898734177218,2.8164556962025316,2.9177215189873418,3.018987341772152,3.1202531645569618,3.2215189873417724,3.3227848101265822,3.4240506329113924,3.5253164556962027,3.6265822784810124,3.7278481012658227,3.8291139240506329,3.9303797468354431,4.0316455696202533,4.1329113924050631,4.2341772151898738,4.3354430379746836,4.4367088607594933,4.537974683544304,4.6392405063291138,4.7405063291139236,4.8417721518987342,4.9430379746835449,5.0443037974683538,5.1455696202531644,5.2468354430379751,5.3481012658227849,5.4493670886075947,5.5506329113924053,5.6518987341772151,5.7531645569620249,5.8544303797468356,5.9556962025316453,6.056962025316456,6.1582278481012658,6.2594936708860756,6.3607594936708862,6.462025316455696,6.5632911392405067,6.6645569620253164,6.7658227848101262,6.8670886075949369,6.9683544303797467,7.0696202531645564,7.1708860759493671,7.2721518987341769,7.3734177215189876,7.4746835443037973,7.5759493670886071,7.6772151898734178,7.7784810126582276,7.8797468354430382,7.981012658227848,8.0822784810126578,8.1835443037974684,8.2848101265822791,8.3860759493670898,8.4873417721518987,8.5886075949367076,8.6898734177215182,8.7911392405063289,8.8924050632911396,8.9936708860759502,9.0949367088607591,9.1962025316455698,9.2974683544303787,9.3987341772151893,9.5],"y":[0.44561855652958088,0.45687685475374595,0.46799080241503443,0.4789603995134466,0.48978564604898234,0.50046654202164165,0.51100308743142464,0.52139528227833121,0.53164312656236123,0.54174662028351506,0.55170576344179245,0.56152055603719331,0.57119099806971796,0.58071708953936607,0.59009883044613787,0.59933622079003324,0.60842926057105218,0.61737794978919469,0.62618228844446078,0.63484227653685055,0.64335791406636389,0.65172920103300092,0.6599561374367614,0.66803872327764569,0.67597695855565343,0.68377084327078486,0.69142037742303974,0.69892556101241832,0.70628639403892046,0.71350287650254618,0.72057500840329558,0.72750278974116855,0.7342862205161651,0.74092530072828533,0.74742003037752913,0.7537704094638964,0.75997643798738745,0.76603811594800209,0.77195544334574018,0.77772842018060195,0.7833570464525873,0.78884132216169633,0.79418124730792894,0.79937682189128512,0.80442804591176487,0.8093349193693683,0.81409744226409519,0.81871561459594577,0.82318943636492004,0.82751890757101787,0.83170402821423917,0.83574479829458415,0.83964121781205281,0.84339328676664493,0.84700100515836074,0.85046437298720012,0.85378339025316319,0.85695805695624971,0.85998837309645992,0.86287433867379371,0.86561595368825117,0.8682132181398321,0.87066613202853671,0.87297469535436489,0.87513890811731665,0.87715877031739209,0.8790342819545911,0.8807654430289138,0.88235225354035995,0.88379471348892968,0.8850928228746231,0.88624658169744008,0.88725598995738075,0.88812104765444499,0.88884175478863281,0.8894181113599442,0.88985011736837916,0.89013777281393769,0.89028107769662002,0.8902800320164258],"text":["CPI: 1.500000<br />HDI: 0.4456186<br />Region: red","CPI: 1.601266<br />HDI: 0.4568769<br />Region: red","CPI: 1.702532<br />HDI: 0.4679908<br />Region: red","CPI: 1.803797<br />HDI: 0.4789604<br />Region: red","CPI: 1.905063<br />HDI: 0.4897856<br />Region: red","CPI: 2.006329<br />HDI: 0.5004665<br />Region: red","CPI: 2.107595<br />HDI: 0.5110031<br />Region: red","CPI: 2.208861<br />HDI: 0.5213953<br />Region: red","CPI: 2.310127<br />HDI: 0.5316431<br />Region: red","CPI: 2.411392<br />HDI: 0.5417466<br />Region: red","CPI: 2.512658<br />HDI: 0.5517058<br />Region: red","CPI: 2.613924<br />HDI: 0.5615206<br />Region: red","CPI: 2.715190<br />HDI: 0.5711910<br />Region: red","CPI: 2.816456<br />HDI: 0.5807171<br />Region: red","CPI: 2.917722<br />HDI: 0.5900988<br />Region: red","CPI: 3.018987<br />HDI: 0.5993362<br />Region: red","CPI: 3.120253<br />HDI: 0.6084293<br />Region: red","CPI: 3.221519<br />HDI: 0.6173779<br />Region: red","CPI: 3.322785<br />HDI: 0.6261823<br />Region: red","CPI: 3.424051<br />HDI: 0.6348423<br />Region: red","CPI: 3.525316<br />HDI: 0.6433579<br />Region: red","CPI: 3.626582<br />HDI: 0.6517292<br />Region: red","CPI: 3.727848<br />HDI: 0.6599561<br />Region: red","CPI: 3.829114<br />HDI: 0.6680387<br />Region: red","CPI: 3.930380<br />HDI: 0.6759770<br />Region: red","CPI: 4.031646<br />HDI: 0.6837708<br />Region: red","CPI: 4.132911<br />HDI: 0.6914204<br />Region: red","CPI: 4.234177<br />HDI: 0.6989256<br />Region: red","CPI: 4.335443<br />HDI: 0.7062864<br />Region: red","CPI: 4.436709<br />HDI: 0.7135029<br />Region: red","CPI: 4.537975<br />HDI: 0.7205750<br />Region: red","CPI: 4.639241<br />HDI: 0.7275028<br />Region: red","CPI: 4.740506<br />HDI: 0.7342862<br />Region: red","CPI: 4.841772<br />HDI: 0.7409253<br />Region: red","CPI: 4.943038<br />HDI: 0.7474200<br />Region: red","CPI: 5.044304<br />HDI: 0.7537704<br />Region: red","CPI: 5.145570<br />HDI: 0.7599764<br />Region: red","CPI: 5.246835<br />HDI: 0.7660381<br />Region: red","CPI: 5.348101<br />HDI: 0.7719554<br />Region: red","CPI: 5.449367<br />HDI: 0.7777284<br />Region: red","CPI: 5.550633<br />HDI: 0.7833570<br />Region: red","CPI: 5.651899<br />HDI: 0.7888413<br />Region: red","CPI: 5.753165<br />HDI: 0.7941812<br />Region: red","CPI: 5.854430<br />HDI: 0.7993768<br />Region: red","CPI: 5.955696<br />HDI: 0.8044280<br />Region: red","CPI: 6.056962<br />HDI: 0.8093349<br />Region: red","CPI: 6.158228<br />HDI: 0.8140974<br />Region: red","CPI: 6.259494<br />HDI: 0.8187156<br />Region: red","CPI: 6.360759<br />HDI: 0.8231894<br />Region: red","CPI: 6.462025<br />HDI: 0.8275189<br />Region: red","CPI: 6.563291<br />HDI: 0.8317040<br />Region: red","CPI: 6.664557<br />HDI: 0.8357448<br />Region: red","CPI: 6.765823<br />HDI: 0.8396412<br />Region: red","CPI: 6.867089<br />HDI: 0.8433933<br />Region: red","CPI: 6.968354<br />HDI: 0.8470010<br />Region: red","CPI: 7.069620<br />HDI: 0.8504644<br />Region: red","CPI: 7.170886<br />HDI: 0.8537834<br />Region: red","CPI: 7.272152<br />HDI: 0.8569581<br />Region: red","CPI: 7.373418<br />HDI: 0.8599884<br />Region: red","CPI: 7.474684<br />HDI: 0.8628743<br />Region: red","CPI: 7.575949<br />HDI: 0.8656160<br />Region: red","CPI: 7.677215<br />HDI: 0.8682132<br />Region: red","CPI: 7.778481<br />HDI: 0.8706661<br />Region: red","CPI: 7.879747<br />HDI: 0.8729747<br />Region: red","CPI: 7.981013<br />HDI: 0.8751389<br />Region: red","CPI: 8.082278<br />HDI: 0.8771588<br />Region: red","CPI: 8.183544<br />HDI: 0.8790343<br />Region: red","CPI: 8.284810<br />HDI: 0.8807654<br />Region: red","CPI: 8.386076<br />HDI: 0.8823523<br />Region: red","CPI: 8.487342<br />HDI: 0.8837947<br />Region: red","CPI: 8.588608<br />HDI: 0.8850928<br />Region: red","CPI: 8.689873<br />HDI: 0.8862466<br />Region: red","CPI: 8.791139<br />HDI: 0.8872560<br />Region: red","CPI: 8.892405<br />HDI: 0.8881210<br />Region: red","CPI: 8.993671<br />HDI: 0.8888418<br />Region: red","CPI: 9.094937<br />HDI: 0.8894181<br />Region: red","CPI: 9.196203<br />HDI: 0.8898501<br />Region: red","CPI: 9.297468<br />HDI: 0.8901378<br />Region: red","CPI: 9.398734<br />HDI: 0.8902811<br />Region: red","CPI: 9.500000<br />HDI: 0.8902800<br />Region: red"],"type":"scatter","mode":"lines","name":"fitted values","line":{"width":null,"color":"rgba(255,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":43.071123287671234,"r":7.3059360730593621,"b":34.443476961394772,"l":37.525944375259442},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Corruption and human development","font":{"color":"rgba(0,0,0,1)","family":"","size":17.534246575342465},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[1,10.199999999999999],"tickmode":"array","ticktext":["1","2","3","4","5","6","7","8","9","10"],"tickvals":[1,2,3,4,5,6,7,8,9,10],"categoryorder":"array","categoryarray":["1","2","3","4","5","6","7","8","9","10"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":10.62681610626816},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"<i> Corruption Perceptions Index, 2011 (10 = least corrupt) <\/i>","font":{"color":"rgba(0,0,0,1)","family":"","size":10.62681610626816}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.16,1.04],"tickmode":"array","ticktext":["0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"],"tickvals":[0.20000000000000001,0.30000000000000004,0.40000000000000002,0.5,0.60000000000000009,0.69999999999999996,0.80000000000000004,0.90000000000000013,1],"categoryorder":"array","categoryarray":["0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"],"nticks":null,"ticks":"outside","tickcolor":"rgba(190,190,190,1)","ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":10.62681610626816},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(190,190,190,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"<i> Human Development Index, 2011 (1 = best) <\/i>","font":{"color":"rgba(0,0,0,1)","family":"","size":10.62681610626816}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"title":{"text":"","font":{"color":null,"family":null,"size":0}}},"hovermode":"closest","height":400,"barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"5bc0e0095ea":{"x":{},"y":{},"colour":{},"type":"scatter"},"5bc048723cd4":{"x":{},"y":{},"colour":{}}},"cur_data":"5bc0e0095ea","visdat":{"5bc0e0095ea":["function (y) ","x"],"5bc048723cd4":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# 动图
+
+`gganimate`是基于`ggplot2`的制作动图的扩展包
+
+- 动图的原理是逐帧画图，然后通过转换设置将每一帧图连续展示
+
+- `anim_save`命令用于将动图储存为`.gif`文件
+
+
+```r
+library(gifski)
+library(gganimate)
+pub_211 &lt;- read_csv("/Users/birdstone/Library/CloudStorage/Dropbox/bigdata_econ_2023/data/pub_211.csv") %&gt;% 
+    filter(cnsubject == "0202 应用经济学",pubyear &lt; 2022)
+pub_211 &lt;- pub_211 %&gt;% group_by(pubyear) %&gt;% 
+    arrange(desc(pubnum)) %&gt;% 
+    mutate(rank = row_number()) %&gt;% 
+    ungroup() %&gt;% filter(rank &lt;= 10) %&gt;% 
+    mutate(rank = 11 - rank,pubyear=as.integer(pubyear))
+```
+
+---
+
+
+```r
+anim &lt;- ggplot(pub_211) +
+    geom_col(aes(x=rank, y = pubnum,group=inst_cn, fill=inst_cn), width=0.4) +
+    geom_text(family='SimSun',aes(x = rank, y=0,label=inst_cn, group=inst_cn),
+              #position = 'dodge',
+              hjust = 1) +
+    theme_minimal() +
+    ylab("Number of appled economics papers") +
+    guides(fill = "none") + 
+    theme(axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          plot.margin = unit(c(4,4,4,4),'lines')) +
+    coord_flip(clip='off') + 
+    ggtitle('{closest_state}') +             # title with the timestamp period
+    transition_states(pubyear,
+                      transition_length = 1,
+                      state_length = 2) +
+    exit_fly(x_loc = 0, y_loc = 0) +         # chart exit animation params
+    enter_fly(x_loc = 0, y_loc = 0)
+animate(anim,duration=20)
+anim_save("econpubrank.gif")
+```
+
+
+---
+
+&lt;img src="10_GG2_files/figure-html/unnamed-chunk-22-1.gif" height="120%" /&gt;
+---
+
+# 数据大屏Dashboard
+
+数据大屏Dashboard用于集中展示数据可视化的成果
+
+- `R`中的`Shiny`包可用于制作炫酷的数据大屏。
+
+- 但是这要求了解HHTML语言，我们后会在爬虫之后介绍
+
+- `flexdashboard`包支持使用`Rmarkdown`语法制作数据大屏，已经可以满足绝大多数的大屏需求
+
+
+---
+
+## flexdashboard安装
+
+
+```r
+install.packages("flexdashboard")
+```
+
+---
+
+## 新建dashboard
+
+安装完成后，可以在`New File-&gt;Rmarkdown-&gt;From Template`中看到`flexdashboard`模板，选择创建。
+
+&lt;img src="img/10/flex1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## dashboard布局
+
+在flexdashboard中，使用三级markdown标题来标记不同的组成部分，通过制定属性的方式来设置组成部分的尺寸
+
+&lt;img src="img/10/flex2.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 学习方式
+
+- 对于大屏、幻灯片、网页布局等最好使用别人的模板进行学习
+
+- 不要试图从原理上全部掌握，效率很低
+
+- https://pkgs.rstudio.com/flexdashboard/articles/examples.html
+
+---
+
+# 课后作业
+
+- 使用pub_211.csv制作一个数据大屏
+
+---
+
+class: inverse, middle, center
+# 好研究首先是好看的研究
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "googlecode",
+"highlightLines": true,
+"highlightLanguage": "r",
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--Hat-tip: https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/-->
+<style>
+.logo {
+  background-image: url(img/IDEALAB.jpeg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 110px;
+  height: 128px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

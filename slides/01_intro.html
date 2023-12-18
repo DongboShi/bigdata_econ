@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>第一讲：数据工程、命令行与Git版本控制</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="史冬波" />
+    <meta name="date" content="2023-11-26" />
+    <script src="libs/header-attrs-2.24/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link rel="stylesheet" href="css/nhsr.css" type="text/css" />
+    <link rel="stylesheet" href="css/nhsr-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+class: title-slide, left, bottom
+
+# 第一讲：数据工程、命令行与Git版本控制
+----
+## **熊彼特的厨房**
+### 史冬波
+### 2023-11-26
+
+---
+
+# 自我介绍
+
+* 2007-2011年，清华大学数学物理基础科学班（C++期中考试16分）
+
+* 2011-2016年，清华大学公共管理学院（四年级自学R，没有正版stata）
+
+* 2017-今，上海交通大学（入职后用小服务器开始捣鼓MySQL，2018年为了姓名消岐开始学习Python与机器学习，2019年数据膨胀不得不购入1T内存服务器开始进入linux系统）
+
+* 研究兴趣：科学经济学-科学家的劳动力市场与激励机制
+
+---
+
+# 为什么会有这门课
+
+--
+
+* 2017年开始给本科生讲《程序语言设计》，到了整理的时候
+
+--
+
+* 数据驱动、算法驱动的社会科学研究带来工具恐慌，信息混杂
+
+--
+
+* 无形学院与开放科学：推动科学经济学的发展，踏破数据门槛与技术门槛，良币驱逐劣币
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="img/musk.png" alt="特斯拉开源Roadster" width="50%" /&gt;
+&lt;p class="caption"&gt;特斯拉开源Roadster&lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+# 助教团队
+
+- 李季，厦门大学知识产权学院博士生
+
+- 王昆仑，上海交通大学安泰经管学院博士生
+
+- 陈建，重庆大学计算机系硕士生
+
+- 招募志愿者：作业修改，信息整理，技术问题之类
+
+---
+
+# 你为什么在这里
+
+--
+
+- 工具恐慌？
+
+    - 现在猴子都会python，我不会的话很焦虑
+    - 动不动就大数据、计算社会科学，我不懂但是我很向往
+
+--
+
+- 科学经济学与科技政策相关研究领域
+
+    - 这个领域好像挺好水文章，比如科学计量
+    - 创新现在多重要啊，显学啊
+
+--
+
+- 反正是免费的，听一听又没啥损失
+
+    - 真的没有成本吗
+    - 不完成作业不可能真的学到真本事
+
+---
+
+# 社会科学的三圈理论
+
+&lt;img src="img/threecircle.png" width="120%" /&gt;
+
+---
+
+# 这门课你能带走什么？
+
+- 数据工程的思想：数据流、数据结构、程序设计语言如何学习、四个原则
+
+- 技术接口与自学能力，打破编程的神秘
+
+- 科学经济学研究的基础数据库，数据的处理以及部分算法实例（倾囊相授）
+
+---
+
+# 局限
+
+- 不是科班出身，应该会遇到解决不了的bug
+
+- 有些（不多）知识点是为了自学才讲的，会有讲错的不熟练的地方
+
+- 工具一直在更新进展，不可能一劳永逸
+
+---
+
+# 数据工程的灵魂：数据流
+
+数据工程至少要完成以下任务：数据采集、数据清理、数据可视化、数据分析以及分析报告写作。整个任务流程统称为数据流(data pipeline)。
+
+-   数据采集
+
+-   数据整理
+
+-   数据可视化
+
+-   数据分析
+
+-   数据报告写作
+
+---
+
+# 数据工程的钥匙：数据结构
+
+数据结构是计算机中存储、组织数据的方式。经济学中最常见的数据结构为表格，表格有行列两个要素。图(网络)也是经济学中常见的数据结构。
+
+数据结构的重要性体现在两个方面：
+
+- 首先，数据结构的选取决定了解决问题的方式与难度。例如，在表达与计算网络时，选择表结构就意味着繁复的计算以及冗余的储存。换句话说，表结构并不是解决网络问题的*最佳工具*。在设计数据任务时，一旦设想好每个步骤的数据结构，其他问题就会迎刃而解。
+
+- 第二，数据结构意味着接口或封装，在数据工程中不同任务的接口是输入与输出数据，良好定义的数据结构便是基础。在一个数据任务内部，数据结构可以被用作不同函数之间的接口，从而实现更好的封装。
+
+---
+
+# 数据工程的四个指导原则
+
+### 可复现性原则
+
+可复现(reproducible)是数据工程的第一原则。实际上，可复现更是整个科学研究的根本原则。科学区别于巫术的根本在于其理论的可证性。
+
+### 模块化与正交分解原则
+
+数据工程中要充分利用分工合作的优势，将数据处理项目拆分成为不同的组成模块。
+
+### 最佳工具原则
+
+数据工程正交分解之后，可以为每一个模块选择最佳工具。最佳工具是随时间变化的，我们要时刻保持开放的心态，不断学习新的最佳工具。
+
+### 一次原则
+
+一是从数据输入到形成数据分析报告，需要全部通过代码一次完成，不能在过程中存在任何人工干预；二是在数据工程中不做任何重复工作。
+
+---
+
+# 数据工程师的工具箱
+
+&lt;img src="img/最佳工具.png" width="45%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# 计算机破产版原理
+
+&lt;img src="img/cpu.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+- CPU的新能决定了单位时间可以完成多少个任务
+
+- CPU（中央处理器）与内存交换数据，内存与硬盘交换数据
+
+- 内存只用于暂存数据
+
+---
+
+# GNU环境
+
+- POSIX（Portable Operating System Interface），是关于计算机操作
+系统的国际标准。它规定了操作系统的基本工具和程序接口。
+
+- 同一个程序，在任何满足POSIX标准的运算环境中，都会得到相同的结果，这就保证了科学研究结果的可复现性。
+
+- GNU是GNU is not Unix的缩写，是自由软件运动形成的 POSIX 环境。
+
+    - GNU/Linux 天然大佬
+    - macOS
+    - Microsoft Windows 本身不满足，但可以使用Windows Subsystem for Linux (WSL)扩展
+    
+- 几乎所有服务器都是GNU Linux环境
+
+    - 大数据的一个底线是笔记本无法处理的数据
+    - 分布式多人协同的任务
+
+---
+
+# 命令行-黑色魔法世界
+
+- 命令行是计算机系统的母语。当我们使用命令行的时候，我们可以清楚的看到程序的输入、输出与执行过程，所以最接近数据工程的“透明原则”。
+
+- 在命令行里，我们需要给计算机以非常精准的指令，这对我们的逻辑思考能力是一个质的改变。在日常生活中，“我以为我知道”和“我确定真的知道”是两个完全不一样的概念，尤其对于经济学家而言，很多时候我们经常处于前者的状态而不自知。在命令行中，我们被迫要达到第二种状态。
+
+- 命令行普遍存在于几乎所有的操作系统，包括但不限于GNU/Linux，Unix，macOS，Windows WSL，以及各种超级计算机。掌握一套命令行工具，可以让我们在各类系统上穿梭自如。
+
+- 使用命令行的方式：item2、wsl2终端、vscode
+
+---
+
+# 常用命令
+
+```
+ls list structure, 列出当前路径中的文件
+cd change directory, 改变当前路径
+mkdir 添加路径（文件夹）
+touch 新建文件
+rm 删除文件或文件夹
+cp 复制文件或文件夹
+curl 获取网页源码
+sudo 使用管理员权限执行操作
+apt Advanced Package Tool 软件管理器
+apt update
+apt install nano diffutils patch git
+nano 文件编辑器，与 emacs, vi, VSCode 等互换
+查找 ^W 、替换 ^R 、保存 ^O 、退出 ^X
+注： ^W 代表按住 Ctrl 键，再按 W。
+```
+
+例如，`curl -k https://patents.google.com/patent/CN114409796A`可用于下载谷歌专利的信息。
+
+---
+
+# 命令行参数与帮助文档
+
+- GNU标准定义了推荐的参数格式，命令的各个部分由**半角**空格分隔。
+
+- 命令行有两种参数，短参数用`-`接一个字母，例如`ls -a`；长参数用`--`接一个单词，例如，`ls --color==tty`。短参数的好处是可以将不同的参数放在一起，例如`ls -lrta`。
+
+- 特别地，不要强迫自己记住所有的参数，经常使用`man`查看帮助文档即可，例如`man ls`。
+
+---
+
+# 版本控制
+
+- 版本控制，也称为源代码控制，指的是单人或多人，对于同一（代码）文件的变更情况进行记录、追踪、维护和控制的过程。
+
+- 版本控制在多人协作时至关重要
+
+    - 设想一个简单的情景，你与合作者共同修改一篇论文，你们需要对对方的论文进行修改，有时候甚至同时对某个版本的稿件进行修改。于是，为了区分不同版本的文件，你的文件夹会出现类似下面的奇观：
+
+&lt;img src="img/files.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+- 为了管理不同版本的文件，最原始的方法便是通过不断给文件叠加后缀来区分。
+
+- 要配合人工的沟通，与合作者约定不要在同一个时间在同一个文件上工作，如果一不小心没有约定好，就会出现相互冲突的文件，此时就需要有人手工合并不同版本。
+
+- 即使是单人工作也会遇到版本问题，忘了保存，后来无论如何想不起来这个版本的代码怎么写的了。
+
+
+---
+
+# Git
+
+- Git是Linux发明人 Linus Torvalds 发明的一个解决版本控制问题的"最佳工具"，可以支持超过5000人团队协作维护Linux。
+
+- Git的思想是将时间轴看作离散的时间存档点，每一存档就相当于对文件系统进行一次快照，对比与上一次存档点的文件差异，储存文件的差分（diff）。
+
+&lt;img src="img/git.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+# Git的三种状态
+
+- 已暂存: 表示文件添加到追踪系统中，使用`git add`命令来实现
+
+- 已提交: 即这个版本已经存好了，使用 `git commit` 把"已暂存"的文件送到新的"已提交"状态上
+
+- 已修改: 即在前一个版本提交之后又做了别的改动，修改之后使用`git add`命令把文件的差分添加到"已暂存"状态。
+
+&lt;img src="img/gitstatus.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Git仓库
+
+- 仓库 (repository) 是用于存储文件的文件夹，可以分为本地仓库与远程仓库
+
+    - 本地仓库位于单人用户的本地计算机上，本地的 `git` 仓库存在于 `.git/` 文件夹下。它是一个隐藏的路径，用来存储 `git` 状态等内部信息， `.git/config` 可被编辑器修改配置。
+    - 远程仓库托管在远程服务器上并在多个团队成员之间共享。
+
+---
+
+# Git命令实践
+
+- **Git的安装**
+
+Linux用户使用`apt`命令，MacOS用户使用`brew`命令安装`git`
+
+```         
+apt install -y git 
+brew install git
+```
+
+安装成功后，设置自己的用户名与邮箱（注意，只有在第一次使用的时候需要设置）。
+
+```         
+git config --global user.name "sunwukong"
+git config --global user.email "sunwukong@qq.com"  
+# 然后新建一个文件夹，在里面建立一个空的 Git 仓库: 
+mkdir learn_git  #在所在目录下新建文件夹"learn_git"
+cd learn_git
+git init # 初始化git到.//learn_git/.git/
+```
+---
+
+- **第一次提交**
+
+新建一个新建一个日志文档`log.txt`，使用`echo`命令写入一句话，记录今天的工作进展：
+
+```         
+touch log.txt
+echo "2023-11-26 learn git status" &gt;&gt; log.txt
+```
+
+完成之后查看目前的状态
+
+```         
+git status
+```
+
+我们需要使用git add 命令添加文件到暂存：
+
+```         
+git add log.txt #log日志添加
+git add #添加当前目录下所有文件
+git add -i #逐一询问添加当前目录下所有文件
+```
+
+`git status` 查看状态
+
+
+---
+
+查看文件差异：
+
+```         
+git diff --cached 
+```
+
+
+- 这个结果中第1行是显示diff作用的两个文件名，第3行是个哈希值；第4行显示原文件为空，第5行是第二个文件，第6行是文件修改的位置，第7行是文件修改的内容。
+
+提交文件
+
+```         
+git commit
+```
+
+- 键盘输入"i"进入编辑模式，加入对此次提交的文字说明"add what I learned in 2023-11-26 "，点击键盘的"ESC"键，输入`:wq`，保存并退出文本编辑
+
+---
+
+- **使用tag发布版本**
+
+为了便于回溯，可以将重要的节点打上版本标签，并通过`git checkout`命令方便找到对应版本。
+
+```         
+git tag gitnotes-1.0 #发布为1.0版本
+git tag #查看版本号
+git checkout gitnotes-1.0 #看到历史版本
+```
+
+```         
+git checkout master #回到主分支
+```
+
+---
+
+- **Git到GitHub**
+
+GitHub是目前世界上使用最多的远程仓
+
+- 注册GitHub账户，建议使用教育邮箱（如果有的话），注册完成后，登录进入GitHub，进入设置页面（&lt;https://github.com/settings/profile&gt;）。
+
+- 在本地生成一个sshkey
+
+```         
+ssh-keygen -t rsa -C "youremail" # 此处为GitHub账户的email
+cat /.ssh/id_ras.pub#查看sshkey
+```
+
+- 将上述sshkey输入`GitHub-&gt;Settings-&gt;SSH and GPG keys`页面，与GitHub绑定（sshkey可以用来不输入密码登陆服务器）
+
+
+- 在GitHub网页端（https://github.com/new） 新建仓库，learngit
+
+
+- 在网页端找到仓库地址，在本地通过`git clone`命令建立与GitHub的联系
+
+```
+git clone https://github.com/DongboShi/learngit.git
+```
+
+---
+
+上传本地文件
+
+```
+git add .
+git commit -m 'add log file'
+git push
+```
+
+---
+# Git目前的局限性
+
+- 版本控制对于研究论文写作也是适用的。一种方式是直接使用文学式编程（作者认为是未来的发展方向），另一种方式是退而求其次，使用LeTex编辑文件。但是对于经济学论文的研究论文版本管理来说，这要求你的合作者也需要适应使用文学式编程的方式来写作研究论文。
+
+- 另外，如果你的英文水平还不足以完成论文时，还受限于你的proofreader是否习惯使用latex或者pdf文件来进行修改。
+
+---
+
+# Markdown
+
+`Markdown`格式是最简洁的带格式的文本语法。`Markdown`是John Gruber于2004年开发的，使用一组非常简洁的符合人类阅读习惯的标签来实现大部分文本文档中的格式，大量被程序开发人员使用。
+
+---
+
+# 标题
+
+标题使用`#`加空格的形式表示，几级标题就用几个`#`表示。由于本文是使用markdown语法写作的，因此就不演示编译后结果了。
+
+```
+# 一级标题
+## 二级标题
+### 三级标题
+#### 四级标题
+```
+
+---
+
+# 段落文本
+
+段落可以是一行或者多行文字，不同段落之间用空行分割。
+
+- `*`之间的文本为*斜体*
+
+- 两个`*`之间的文本为**加粗**
+
+- 三个以上`*`表示分隔符
+
+- 使用`-`表示无序列表，使用`1.`表示有序列表，可以通过制表符来进行列表分级。
+
+- 通过`[](link)`来表示引用，link表示超链接地址。
+
+
+---
+
+后来我就念了**两首诗**[1],
+
+[^2]: 纪念一位逝去的长者
+
+&gt; 苟利国家生死以，岂因祸福避趋之
+
+他回忆说：“*一个人的命运啊，当然要靠自我奋斗，但是也要考虑到历史的行程。*”
+
+***
+
+人固有一死，
+
+- 或重于泰山
+- 或轻于鸿毛
+  - 或介于中间
+
+更多关于markdown知识可以参考markdown手册和Rstudio的文档， 以及[Xie, Allaire, and Grolemund 2019](https://bookdown.org/yihui/rmarkdown/)。
+
+---
+
+# 表格
+
+表格使用`|`分割不同的列，多个`-`区分表头与表格，并搭配`:`表示对齐方式，列宽度与输入的列标题下横线宽度成比例。例如：
+
+```
+| Covariates                                                | Mean      |           | Difference | P value |
+| --------------------------------------------------------- |:---------:| --------- | ----------:| -------|
+|                                                           | Acceptors | Rejectors |            |         |
+| PhD from globally top-100 STEM program                    | 0.525     | 0.551     | −0.026   | 0.701   |
+| Research productivity before return                       |           |           |            |         |
+|   Articles per year                                       | 2.390     | 2.932     | −0.541   | 0.098   |
+|   First-authored articles per year                        | 1.003     | 1.058     | −0.055   | 0.658   |
+|   First-authored articles in top 10% of journals per year | 0.523     | 0.403     | 0.119      | 0.040   |
+|   Last-authored articles per year                         | 0.196     | 0.608     | −0.412   | 0.000   |
+|   Last-authored articles in top 10% of journals per year  | 0.046     | 0.202     | −0.156   | 0.001   |
+| Overseas faculty appointments                             | 0.136     | 0.890     | −0.755   | 0.000   |
+| Research funding per year ($1000 in 2010 USD)             | 4.439     | 30.365    | −25.925  | 0.006   |
+Table: Table 1. YTT offer receiver comparison.(Shi et.al., 2023)
+
+```
+
+---
+
+| Covariates                                                | Mean      |           | Difference | P value |
+| --------------------------------------------------------- |:---------:| --------- | ----------:| -------|
+|                                                           | Acceptors | Rejectors |            |         |
+| PhD from globally top-100 STEM program                    | 0.525     | 0.551     | −0.026   | 0.701   |
+| Research productivity before return                       |           |           |            |         |
+|   Articles per year                                       | 2.390     | 2.932     | −0.541   | 0.098   |
+|   First-authored articles per year                        | 1.003     | 1.058     | −0.055   | 0.658   |
+|   First-authored articles in top 10% of journals per year | 0.523     | 0.403     | 0.119      | 0.040   |
+|   Last-authored articles per year                         | 0.196     | 0.608     | −0.412   | 0.000   |
+|   Last-authored articles in top 10% of journals per year  | 0.046     | 0.202     | −0.156   | 0.001   |
+| Overseas faculty appointments                             | 0.136     | 0.890     | −0.755   | 0.000   |
+| Research funding per year ($1000 in 2010 USD)             | 4.439     | 30.365    | −25.925  | 0.006   |
+Table: Table 1. YTT offer receiver comparison.(Shi et.al., 2023)
+
+---
+
+# 图片
+
+`![]()`用于添加图片，方括号内是图片的标题，可以空缺，圆括号内是图片的地址，可以是网页图片也可以是本地图片。
+
+![](https://www.r-project.org/logo/Rlogo.png)
+
+
+---
+
+# 代码块
+
+使用单个上标顿号`\`可以在文本行内标注代码代码引用，使用三个`\`可以将整个段落设置为代码块。
+
+段落代码块使用时，可以在三个`\`后用`{}`来标记代码块使用的编程语言。
+
+
+```
+library(readr)
+```
+
+
+---
+
+# 数学公式
+
+使用单个`$`可以在文本行内应用Tex语法来编辑数学公式，两个`$`可以生成数学公式段落。例如，
+
+```
+$
+\beta_{1} = \frac{\Sigma_{1}^{n}(x_{i}-\bar{x})(y_{i}-\bar{y})}{\Sigma_{1}^{n}(x_{i}-\bar{x})^2}
+$
+```
+
+`\(\beta_{1} = \frac{\Sigma_{1}^{n}(x_{i}-\bar{x})(y_{i}-\bar{y})}{\Sigma_{1}^{n}(x_{i}-\bar{x})^2}\)`
+
+
+
+---
+
+# 其他
+
+除此之外，`Markdown`还可以兼容`HTML`，在网络上可以找到丰富的学术资源拓展学习。
+
+大部分的网页编译器都允许`Markdown`语法，例如&lt;https://editor.mdnice.com/&gt;可以通过`Markdown`语法来编辑文档，然后转化成微信公众号或知乎支持的富文档。
+
+---
+
+# 学习建议与求助
+
+- 课程按照零基础设置，欢迎有基础的老师和同学答疑解惑
+
+- 使用chatgpt理解代码与提示代码
+
+- 在Github上提交issue，尽可能不在群里讨论，可以累计问题与解决方案
+
+- 使用谷歌搜索报错，尽可能在英文论坛寻找答案
+
+- 不要担心遇到bug，以后还会经常遇到的，要习惯
+
+---
+
+# 知识点
+
+- AI时代的社会科学研究
+
+- 数据工程
+
+- GNU Linux与命令行
+
+- 版本控制、git与github
+
+- Markdown语法
+
+---
+
+# 课后练习
+
+1. 新建一个github仓库，并完成第一次提交
+
+2. 克隆课程仓库，并且pull到本地
+
+3. 加入课程github，将github账号发送到课程邮箱，助教会邀请
+
+4. 自学vscode如何编辑md文档，参考资料:https://code.visualstudio.com/docs/languages/markdown
+
+5. 安装R与Rstudio
+
+    - Windows用户安装需要分别在windows里面安装R和Rtudio；在wsl2中安装R，安装教程助教随后上传到课程主页；
+    - macOS用户只需要安装一份即可
+
+---
+
+class: inverse,middle,center
+# 欢迎进入新世界
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "googlecode",
+"highlightLines": true,
+"highlightLanguage": "r",
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--Hat-tip: https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/-->
+<style>
+.logo {
+  background-image: url(img/IDEALAB.jpeg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 110px;
+  height: 128px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

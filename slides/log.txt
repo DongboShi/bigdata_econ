@@ -1,0 +1,4 @@
+Day 2: Basics
+Day 3: Numpy
+Day 4: Scrapy
+Day 5: Machine Learning

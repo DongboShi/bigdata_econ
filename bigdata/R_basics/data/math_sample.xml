@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<publications dataset="scad-zbmath-01-limited-access">
+<publication id="zbmath:0790.73063">
+ <title>Torsional vibrations of nonhomogeneous magnetostrictive elastic circular cylinder</title>
+ <venue>Int. J. Math. Math. Sci. 17, No.1, 181-185 (1994).</venue>
+ <year>1994</year>
+ <classification>74F15 74H45</classification>
+ <keywords>circumferential magnetic field; axial current; longitudinal magnetic field; frequency equation; displacement; stress</keywords>
+ <abstract>This paper is concerned with the torsional vibrations of a nonhomogeneous magnetostrictive elastic cylinder. The cylinder is subjected to the action of a circumferential magnetic field produced by an axial current of constant density, and the deformation of a magnetostrictive cylinder is produced by a constant longitudinal magnetic field. The frequency equation is determined, and the displacement and stress components are numerically calculated with graphical presentations.</abstract>
+ <authors>
+   <author name="Debnath, Lokenath" shortname="Debnath, L." id="debnath.lokenath"/>
+ </authors>
+</publication>
+<publication id="zbmath:0805.73022">
+ <title>Torsional wave propagation in an orthotropic magneto-elastic hollow circular cylinder</title>
+ <venue>Appl. Math. Comput. 63, No.2-3, 281-293 (1994).</venue>
+ <year>1994</year>
+ <classification>74J10 74F15</classification>
+ <keywords>extrema; characteristic numbers; phase velocities; first five modes</keywords>
+ <authors>
+   <author name="Abd-alla, Abo-el-nour N." shortname="Abd-alla, A." id="abd-alla.abo-el-nour-n"/>
+ </authors>
+</publication>
+</publications>

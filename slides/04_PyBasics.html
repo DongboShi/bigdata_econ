@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>第四讲：Python基础</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="史冬波" />
+    <meta name="date" content="2023-12-07" />
+    <script src="libs/header-attrs-2.24/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link rel="stylesheet" href="css/nhsr.css" type="text/css" />
+    <link rel="stylesheet" href="css/nhsr-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+class: title-slide, left, bottom
+
+# 第四讲：Python基础
+----
+## **数据类型、数据结构、控制流程、读写、命令行参数**
+### 史冬波
+### 2023-12-07
+
+---
+
+# 关于作业
+
+* 每个同学需要批改一份他人作业
+
+* 判断是否可以运行
+
+* 以注释的形式给出作业修改的建议
+
+* 鼓励大家相互讨论，小组长可以组织课后的学习会
+
+* 助教会定期进行课后习题讲解，欢迎大家参加，通知会发到群里
+
+---
+
+# 学习目标
+
+--
+
+* Python的基础语法构成
+
+--
+
+* 应用一套组合拳学习新语言
+
+--
+
+* 解析谷歌专利文件
+
+--
+
+* 使用高德地图API获取地理信息
+
+---
+
+# 课前准备
+
+- 下载数据[google100.json](https://www.dropbox.com/scl/fi/lwlikopcn5ujo7cjktgo8/google100.txt?rlkey=80e4fol8dsdyq5aokuav60efz&amp;dl=0)
+
+---
+
+# 怎么又学一门语言？
+
+- `Python`是一门通用语言
+
+- `Python`的语法如`R`一般简洁易懂
+
+- `Python`的软件库丰富，可以完成非常多其他的功能
+
+- 天生的“胶水语言”，非常适合跨语言协作
+
+- 绝大多数`API`使用`Python`语法
+
+- 自然语言处理、机器学习、深度学习的最佳工具
+
+- 学习成本边际断崖式递减
+
+---
+
+# IDE
+
+- `Pycharm Pro` 是一个如Rstudio一样的IDE
+
+    - windows要使用WSL中的python
+    
+    - 注册教育许可
+    
+- 单行注释使用`#`
+
+- 多行注释使用`"""`
+
+---
+
+# 数据类型
+
+`Python`有五种数据类型：整型（精度无限的整数）、浮点型（64位高精度小数）、字符串和`None`。字符串引号（单引号或双引号）标注、布尔型（`Ture`和`False`）。
+
+`None`是`Python`中一个特别的值，即不是整数也不是浮点数，属于一种独有的类型。
+
+```
+type(1)
+type(3.14)
+type("hello world")
+type(True)
+type(None)
+```
+
+---
+
+## 类型转换
+
+`int`、`float`、`str`和`bool`函数可以转换数据类型。与`R`一样，不是所有类型都可以互相转换的，转换不及会报错。
+
+## 算术运算
+
+`+-*/`用于四则运算，幂运算使用两个星号，`//`表示整除，`%`为取余数
+
+```
+3 + 3
+3 - 3
+3 * 3
+3 / 2
+3 ** 6
+3 // 2
+4 % 2
+```
+---
+
+更复杂的运算，可以导入`math`模块，例如阶乘，
+
+```
+import math
+math.factorial(10)
+```
+
+## 布尔运算
+
+`and`，`or`，`not`是`Python`中的“与、或、非”运算
+
+```
+True and False
+True or False
+not True
+```
+`&lt;`、`&lt;=`、`&gt;`、`&gt;=`、`==`，`!=`用于数值比较，生成布尔型。
+
+```
+3 &gt; 2
+2 != 2
+```
+---
+
+# 字符串
+
+`Python`有非常强大的字符串工具库，针对单个字符串，`Python`开发了非常强大的属性与操作。
+
+
+```python
+"3.14" + "15926"
+```
+
+```
+## '3.1415926'
+```
+
+```python
+"重要的话说三次！"*3
+```
+
+```
+## '重要的话说三次！重要的话说三次！重要的话说三次！'
+```
+
+```python
+len("3.1415")
+```
+
+```
+## 6
+```
+
+---
+
+## 字符串的替换
+
+`.format`函数可以实现灵活的字符串替换，例如，
+
+
+```python
+"我感觉{}还需要{}，你们毕竟还是{}，你明白这意思吧？我告诉你们我是{}了，见得多了，西方哪一个{}我没有去过？你们要知道，美国的{}，比你们不知道要{}到哪里去了，我跟他{}。".format("你们新闻界","学习","too young","身经百战","国家","华莱士","高","谈笑风生")
+```
+
+```
+## '我感觉你们新闻界还需要学习，你们毕竟还是too young，你明白这意思吧？我告诉你们我是身经百战了，见得多了，西方哪一个国家我没有去过？你们要知道，美国的华莱士，比你们不知道要高到哪里去了，我跟他谈笑风生。'
+```
+
+其中，变的部分用`{}`表示，`.format`中的参数与前面的`{}`一一对应
+
+`f-string`可以实现同样的功能，在数据输出时经常使用
+
+
+```python
+a = 3
+b = 5
+f"{a}乘以{b}等于{a*b}"
+```
+
+```
+## '3乘以5等于15'
+```
+
+---
+
+## 字符串的切片
+
+直接用`[]`就可以取出字符串的子集，注意`Python`从0开始编号，且使用左闭右开区间
+
+
+```python
+a = "hello world"
+a[0],a[2:4]
+```
+
+```
+## ('h', 'll')
+```
+
+---
+
+## 标准字符串操作
+
+
+|操作|作用|
+|:----|:------------|
+|`.count`|统计字符出现的次数|
+|`.startwith`|判断字符串是否由某个子串开头|
+|`.split`|将字符串按照给定的分隔符分成列表|
+|`.replace`|一一替换字符|
+
+
+```python
+seed = bin(234); print(seed)
+```
+
+```
+## 0b11101010
+```
+
+```python
+print(seed.replace('0b','').replace('0',"奥").replace('1',"利"))
+```
+
+```
+## 利利利奥利奥利奥
+```
+
+---
+
+# 标准输入
+
+- `input`函数可以键盘得到输入
+
+---
+
+# 数据结构
+
+## 列表
+
+列表用`[]`表达，其中的元素用`,`分割
+
+```python
+lt = ["a","c",2]
+```
+
+### 添加
+
+生成空列表，使用`.append()`方法逐步加入元素，注意每次只能加一个
+
+
+```python
+lt.append(1)
+print(lt)
+```
+
+```
+## ['a', 'c', 2, 1]
+```
+
+---
+
+### 拼接
+
+`+`，`+=`可用于拼接列表；`*`用于重复。
+
+
+```python
+lt + [1,2]
+```
+
+```
+## ['a', 'c', 2, 1, 1, 2]
+```
+
+```python
+lt * 3
+```
+
+```
+## ['a', 'c', 2, 1, 'a', 'c', 2, 1, 'a', 'c', 2, 1]
+```
+
+```python
+lt+=[1,2]
+print(lt)
+```
+
+```
+## ['a', 'c', 2, 1, 1, 2]
+```
+
+---
+
+### 切片
+
+与字符串一致，可以用下标取出列表特定的元素
+
+
+```python
+print(lt[0:1])
+```
+
+```
+## ['a']
+```
+
+---
+
+### 判断
+
+`in`命令可以判断元素的归属。
+
+
+```python
+"b" in lt, 2 in lt
+```
+
+```
+## (False, True)
+```
+
+---
+
+### 删除
+
+`remove`用于为删除特定元素；`pop`用于删除指定索引对应的元素；`clear`用于清空列表中所有元素，得到空列表；`del`删除变量。
+
+
+```python
+lt.remove(1);print(lt)
+```
+
+```
+## ['a', 'c', 2, 1, 2]
+```
+
+```python
+lt.pop(0);print(lt)
+```
+
+```
+## 'a'
+## ['c', 2, 1, 2]
+```
+
+```python
+lt.clear();print(lt)
+```
+
+```
+## []
+```
+
+---
+
+## 元组
+
+元组是一类特殊的列表，不同之处在于元组的元素不能修改。使用`()`生成。`+`与`+=`可以用于拼接元组，`*`用于重复，`[]`用于切
+
+由于元组是不能修改的，因此只能全部删除元组。
+
+
+```python
+tup1 = (1,23,4,'a')
+tup2 = ("x","y")
+tup = tup1 + tup2
+tup[0:3]
+```
+
+```
+## (1, 23, 4)
+```
+
+```python
+del tup
+```
+
+---
+
+注意一个细节，`("x")`一个元素时，会被认为是字符串而不是元组，但是`["x"]`却是一个列表
+
+
+```python
+type(("x"))
+```
+
+```
+## &lt;class 'str'&gt;
+```
+
+```python
+type(["x"])
+```
+
+```
+## &lt;class 'list'&gt;
+```
+
+---
+
+## 字典
+
+- 字典是`Python`的经典数据结构，与`JSON`数据结构类似
+
+- 字典用`{}`定义，以`key:value`这样的键值对定义一组词，词与词之间用`,`分隔
+
+- 可以通过`.keys()`和`.values()`取出字典的键和值
+
+- `.items()`在则可以构建迭代器。
+
+- 字典的索引是通过`keys`实现的，是无序的，但仍可以通过对keys的索引进行元素的删除，只是不支持切片操作
+
+---
+
+
+```python
+dc = {"女": 25}
+dc["男"]=18
+print(dc["女"])
+```
+
+```
+## 25
+```
+
+```python
+print('男' in dc)
+```
+
+```
+## True
+```
+`dict`和`enumerate`函数可以把任何序列直接生成字典。这在后续的循环迭代器构建中有妙用。
+
+
+```python
+dict(enumerate("abcd"))
+```
+
+```
+## {0: 'a', 1: 'b', 2: 'c', 3: 'd'}
+```
+
+---
+
+### 字典的键
+
+字典的原理要求键是不可变类型。因此，元组可以作为键，例如，
+
+
+```python
+{(0, 0): "a", (0, 1): "b", (1, 0): "c"}
+```
+
+```
+## {(0, 0): 'a', (0, 1): 'b', (1, 0): 'c'}
+```
+
+这样的数据结构适合地理数据
+
+---
+
+### 删除
+
+`pop`的作用为删除指定索引对应的键值对，使用方式为 `dict.pop(keys)`。`clear`与`del`函数的作用与对列表一致
+
+
+```python
+dc.pop("女")
+```
+
+```
+## 25
+```
+
+```python
+print(dc)
+```
+
+```
+## {'男': 18}
+```
+
+---
+
+# defaultdict
+
+
+
+```python
+from collections import defaultdict
+
+dsc = defaultdict(int)
+dsc["上海"] = 42; dsc["北京"] = 52
+print(dsc["广州"], dsc["上海"])
+```
+
+```
+## 0 42
+```
+
+---
+
+# Counter – 高效地计数
+
+
+```python
+successor = ["八阿哥","八阿哥","四阿哥","四阿哥","八阿哥"]
+
+numbers = defaultdict(int)
+
+for d in successor:
+    numbers[d]+=1
+    
+print(numbers)
+```
+
+```
+## defaultdict(&lt;class 'int'&gt;, {'八阿哥': 3, '四阿哥': 2})
+```
+
+---
+
+
+```python
+from collections import Counter
+cnumbers = Counter(successor)
+print(cnumbers)
+```
+
+```
+## Counter({'八阿哥': 3, '四阿哥': 2})
+```
+
+---
+
+# namedtuple 
+
+
+```python
+from collections import namedtuple
+Point = namedtuple("point", field_names=("x", "y"))
+p = Point(1,2)
+print(p)
+```
+
+```
+## point(x=1, y=2)
+```
+
+
+```python
+print(p.x, p.y)
+```
+
+```
+## 1 2
+```
+
+```python
+print(p[0], p[1])
+```
+
+```
+## 1 2
+```
+
+---
+
+## 数据结构之间的转化
+
+- 列表与元组之间可以无缝转换，使用`tuple`函数和`list`函数。
+
+- 字典中的词或者值都可以转化为列表和元组
+
+---
+
+# 流程控制
+
+## 条件判断
+
+`Python`强制要求代码缩进来表达程序的结构
+
+
+```python
+x = 10
+if x % 2:
+    print(f"{x}是奇数")
+else:
+    print(f"{x}是偶数")
+```
+
+```
+## 10是偶数
+```
+
+---
+
+当有三重选择时，可以使用`else if（或elif）`
+
+
+```python
+m = 100
+n = 50
+if m &gt; n:
+  print(m,"is lager than", n)
+elif m ==n:
+  print(m,"is equal to", n)
+else:
+  print(m,"is smaller than", n)
+```
+
+```
+## 100 is lager than 50
+```
+
+---
+
+## 循环
+
+Python的循环结构有两种，`for`语句和`while`语句
+
+### while循环
+
+```python
+a = 0
+n = 0
+while a &lt; 101:
+  n = n + a
+  a += 1
+print(n)
+```
+
+```
+## 5050
+```
+
+---
+
+### for循环
+
+
+```python
+n = 0
+for a in range(101):
+  n = n + a
+print(n)
+```
+
+```
+## 5050
+```
+
+此处的`range`函数是生成了一个从0到100的**迭代器**（iterator）
+
+---
+
+字符串可以当成天然的迭代器，下面的写法就比`R`里面方便的多。
+
+
+```python
+for a in "hello world":
+  print(a)
+```
+
+```
+## h
+## e
+## l
+## l
+## o
+##  
+## w
+## o
+## r
+## l
+## d
+```
+
+---
+
+`enumerate`函数生成索引和迭代器，
+
+
+```python
+for i, a in enumerate("hello world"):
+  print(f"第{i}个字符是{a}")
+```
+
+```
+## 第0个字符是h
+## 第1个字符是e
+## 第2个字符是l
+## 第3个字符是l
+## 第4个字符是o
+## 第5个字符是 
+## 第6个字符是w
+## 第7个字符是o
+## 第8个字符是r
+## 第9个字符是l
+## 第10个字符是d
+```
+
+---
+
+字典也是天生的迭代器
+
+
+```python
+for k, v in {"女": 25,"男":18}.items():
+  print(f"班上有{v}个{k}生")
+```
+
+```
+## 班上有25个女生
+## 班上有18个男生
+```
+
+在循环里执行`continue`，可以跳过本次循环进入下一步。执行`break`则终止循环，直接跳出循环体。
+
+---
+
+# 函数与模块
+
+`Python`定义函数的方式如下：
+
+
+```python
+def add(x,y):
+  print(f"x is {x} and y is {y}")
+  return x + y  # Return values with a return statement
+
+add(2,3)
+```
+
+```
+## x is 2 and y is 3
+## 5
+```
+
+---
+
+## 批量调用
+
+`map`可以将函数作用到每个元素后返回值组成的迭代器。
+
+
+```python
+def squared(x):
+  return x*x
+
+list(map(squared,range(5)))
+```
+
+```
+## [0, 1, 4, 9, 16]
+```
+
+---
+
+## 无名函数
+
+当函数只是调用一次时，可以使用无名函数的方法来定义。
+
+
+```python
+list(map(lambda x:x*x,range(5)))
+```
+
+```
+## [0, 1, 4, 9, 16]
+```
+
+---
+
+## 函数文档
+
+为了更好地解释函数的使用方法，可以在函数定义时，输入一段字符串，这样的字符串可以用`help`函数读出。
+
+
+```python
+def squared(x):
+    "计算平方的函数"
+    # 具体实现省略
+    return x*x
+
+help(squared)
+```
+
+```
+## Help on function squared in module __main__:
+## 
+## squared(x)
+##     计算平方的函数
+```
+
+---
+
+## 模块
+
+模块是把函数等聚集起来的名字空间，由目录或者文件划定。使用`import`方法可以导入模块，模块都具有详实的在线帮助，可以使用`help`函数查看。
+
+
+```python
+import math
+help(math)
+```
+
+```
+## Help on module math:
+## 
+## NAME
+##     math
+## 
+## DESCRIPTION
+##     This module provides access to the mathematical functions
+##     defined by the C standard.
+## 
+## FUNCTIONS
+##     acos(x, /)
+##         Return the arc cosine (measured in radians) of x.
+##         
+##         The result is between 0 and pi.
+##     
+##     acosh(x, /)
+##         Return the inverse hyperbolic cosine of x.
+##     
+##     asin(x, /)
+##         Return the arc sine (measured in radians) of x.
+##         
+##         The result is between -pi/2 and pi/2.
+##     
+##     asinh(x, /)
+##         Return the inverse hyperbolic sine of x.
+##     
+##     atan(x, /)
+##         Return the arc tangent (measured in radians) of x.
+##         
+##         The result is between -pi/2 and pi/2.
+##     
+##     atan2(y, x, /)
+##         Return the arc tangent (measured in radians) of y/x.
+##         
+##         Unlike atan(y/x), the signs of both x and y are considered.
+##     
+##     atanh(x, /)
+##         Return the inverse hyperbolic tangent of x.
+##     
+##     cbrt(x, /)
+##         Return the cube root of x.
+##     
+##     ceil(x, /)
+##         Return the ceiling of x as an Integral.
+##         
+##         This is the smallest integer &gt;= x.
+##     
+##     comb(n, k, /)
+##         Number of ways to choose k items from n items without repetition and without order.
+##         
+##         Evaluates to n! / (k! * (n - k)!) when k &lt;= n and evaluates
+##         to zero when k &gt; n.
+##         
+##         Also called the binomial coefficient because it is equivalent
+##         to the coefficient of k-th term in polynomial expansion of the
+##         expression (1 + x)**n.
+##         
+##         Raises TypeError if either of the arguments are not integers.
+##         Raises ValueError if either of the arguments are negative.
+##     
+##     copysign(x, y, /)
+##         Return a float with the magnitude (absolute value) of x but the sign of y.
+##         
+##         On platforms that support signed zeros, copysign(1.0, -0.0)
+##         returns -1.0.
+##     
+##     cos(x, /)
+##         Return the cosine of x (measured in radians).
+##     
+##     cosh(x, /)
+##         Return the hyperbolic cosine of x.
+##     
+##     degrees(x, /)
+##         Convert angle x from radians to degrees.
+##     
+##     dist(p, q, /)
+##         Return the Euclidean distance between two points p and q.
+##         
+##         The points should be specified as sequences (or iterables) of
+##         coordinates.  Both inputs must have the same dimension.
+##         
+##         Roughly equivalent to:
+##             sqrt(sum((px - qx) ** 2.0 for px, qx in zip(p, q)))
+##     
+##     erf(x, /)
+##         Error function at x.
+##     
+##     erfc(x, /)
+##         Complementary error function at x.
+##     
+##     exp(x, /)
+##         Return e raised to the power of x.
+##     
+##     exp2(x, /)
+##         Return 2 raised to the power of x.
+##     
+##     expm1(x, /)
+##         Return exp(x)-1.
+##         
+##         This function avoids the loss of precision involved in the direct evaluation of exp(x)-1 for small x.
+##     
+##     fabs(x, /)
+##         Return the absolute value of the float x.
+##     
+##     factorial(n, /)
+##         Find n!.
+##         
+##         Raise a ValueError if x is negative or non-integral.
+##     
+##     floor(x, /)
+##         Return the floor of x as an Integral.
+##         
+##         This is the largest integer &lt;= x.
+##     
+##     fmod(x, y, /)
+##         Return fmod(x, y), according to platform C.
+##         
+##         x % y may differ.
+##     
+##     frexp(x, /)
+##         Return the mantissa and exponent of x, as pair (m, e).
+##         
+##         m is a float and e is an int, such that x = m * 2.**e.
+##         If x is 0, m and e are both 0.  Else 0.5 &lt;= abs(m) &lt; 1.0.
+##     
+##     fsum(seq, /)
+##         Return an accurate floating point sum of values in the iterable seq.
+##         
+##         Assumes IEEE-754 floating point arithmetic.
+##     
+##     gamma(x, /)
+##         Gamma function at x.
+##     
+##     gcd(*integers)
+##         Greatest Common Divisor.
+##     
+##     hypot(...)
+##         hypot(*coordinates) -&gt; value
+##         
+##         Multidimensional Euclidean distance from the origin to a point.
+##         
+##         Roughly equivalent to:
+##             sqrt(sum(x**2 for x in coordinates))
+##         
+##         For a two dimensional point (x, y), gives the hypotenuse
+##         using the Pythagorean theorem:  sqrt(x*x + y*y).
+##         
+##         For example, the hypotenuse of a 3/4/5 right triangle is:
+##         
+##             &gt;&gt;&gt; hypot(3.0, 4.0)
+##             5.0
+##     
+##     isclose(a, b, *, rel_tol=1e-09, abs_tol=0.0)
+##         Determine whether two floating point numbers are close in value.
+##         
+##           rel_tol
+##             maximum difference for being considered "close", relative to the
+##             magnitude of the input values
+##           abs_tol
+##             maximum difference for being considered "close", regardless of the
+##             magnitude of the input values
+##         
+##         Return True if a is close in value to b, and False otherwise.
+##         
+##         For the values to be considered close, the difference between them
+##         must be smaller than at least one of the tolerances.
+##         
+##         -inf, inf and NaN behave similarly to the IEEE 754 Standard.  That
+##         is, NaN is not close to anything, even itself.  inf and -inf are
+##         only close to themselves.
+##     
+##     isfinite(x, /)
+##         Return True if x is neither an infinity nor a NaN, and False otherwise.
+##     
+##     isinf(x, /)
+##         Return True if x is a positive or negative infinity, and False otherwise.
+##     
+##     isnan(x, /)
+##         Return True if x is a NaN (not a number), and False otherwise.
+##     
+##     isqrt(n, /)
+##         Return the integer part of the square root of the input.
+##     
+##     lcm(*integers)
+##         Least Common Multiple.
+##     
+##     ldexp(x, i, /)
+##         Return x * (2**i).
+##         
+##         This is essentially the inverse of frexp().
+##     
+##     lgamma(x, /)
+##         Natural logarithm of absolute value of Gamma function at x.
+##     
+##     log(...)
+##         log(x, [base=math.e])
+##         Return the logarithm of x to the given base.
+##         
+##         If the base not specified, returns the natural logarithm (base e) of x.
+##     
+##     log10(x, /)
+##         Return the base 10 logarithm of x.
+##     
+##     log1p(x, /)
+##         Return the natural logarithm of 1+x (base e).
+##         
+##         The result is computed in a way which is accurate for x near zero.
+##     
+##     log2(x, /)
+##         Return the base 2 logarithm of x.
+##     
+##     modf(x, /)
+##         Return the fractional and integer parts of x.
+##         
+##         Both results carry the sign of x and are floats.
+##     
+##     nextafter(x, y, /)
+##         Return the next floating-point value after x towards y.
+##     
+##     perm(n, k=None, /)
+##         Number of ways to choose k items from n items without repetition and with order.
+##         
+##         Evaluates to n! / (n - k)! when k &lt;= n and evaluates
+##         to zero when k &gt; n.
+##         
+##         If k is not specified or is None, then k defaults to n
+##         and the function returns n!.
+##         
+##         Raises TypeError if either of the arguments are not integers.
+##         Raises ValueError if either of the arguments are negative.
+##     
+##     pow(x, y, /)
+##         Return x**y (x to the power of y).
+##     
+##     prod(iterable, /, *, start=1)
+##         Calculate the product of all the elements in the input iterable.
+##         
+##         The default start value for the product is 1.
+##         
+##         When the iterable is empty, return the start value.  This function is
+##         intended specifically for use with numeric values and may reject
+##         non-numeric types.
+##     
+##     radians(x, /)
+##         Convert angle x from degrees to radians.
+##     
+##     remainder(x, y, /)
+##         Difference between x and the closest integer multiple of y.
+##         
+##         Return x - n*y where n*y is the closest integer multiple of y.
+##         In the case where x is exactly halfway between two multiples of
+##         y, the nearest even value of n is used. The result is always exact.
+##     
+##     sin(x, /)
+##         Return the sine of x (measured in radians).
+##     
+##     sinh(x, /)
+##         Return the hyperbolic sine of x.
+##     
+##     sqrt(x, /)
+##         Return the square root of x.
+##     
+##     tan(x, /)
+##         Return the tangent of x (measured in radians).
+##     
+##     tanh(x, /)
+##         Return the hyperbolic tangent of x.
+##     
+##     trunc(x, /)
+##         Truncates the Real x to the nearest Integral toward 0.
+##         
+##         Uses the __trunc__ magic method.
+##     
+##     ulp(x, /)
+##         Return the value of the least significant bit of the float x.
+## 
+## DATA
+##     e = 2.718281828459045
+##     inf = inf
+##     nan = nan
+##     pi = 3.141592653589793
+##     tau = 6.283185307179586
+## 
+## FILE
+##     /usr/local/Cellar/python@3.11/3.11.5/Frameworks/Python.framework/Versions/3.11/lib/python3.11/lib-dynload/math.cpython-311-darwin.so
+```
+
+---
+
+当模块中的内容很多时，会被安排在不同层次的名字空间中，可以使用`from`来简化调用，`as`可以指定模块的别名。
+
+
+```python
+import os
+from os.path import abspath
+from os.path import abspath as absp
+```
+
+---
+
+## 模块的安装
+
+Debian
+
+`sudo apt install python3-numpy python3-scipy`
+
+macOS使用
+
+`brew install python-numpy python-scipy`
+
+---
+
+# 数据读写与文件操作
+
+之前我们介绍了通过`input`从键盘输入和`print`输出到屏幕。除此之外，还可以直接从文件读入和输出到文件。`Python`内置了`file`类，来完成文件操作
+
+## 读入文件
+
+`open`函数用于打开文件，创建一个`file`对象，第一个参数是文件名，第二参数为打开模式，默认值`r`表示只读，`w`表示写出，`a`表示添加。`open`打开文件之后，用迭代器逐行读取。
+
+```
+if [ -f log.txt ]; then rm log.txt ;fi
+echo "This is a record of my progress in learning Python" &gt; log.txt
+echo "Day 1: Introduction" &gt;&gt; log.txt
+```
+
+
+```python
+for l in open("log.txt"):
+  print(l,end = "") # 读入的字符串带有换行符，与print 叠加会有空行，end参数表示去掉空行。
+```
+
+```
+## Day 2: Basics
+## Day 3: Numpy
+## Day 4: Scrapy
+## Day 5: Machine Learning
+```
+
+---
+
+## 写出文件
+
+`open`以写模式打开，可以输出到文件
+
+
+```python
+f = open("log.txt", "w")
+f.write("Day 2: Basics\n")
+```
+
+```
+## 14
+```
+
+```python
+f.write("Day 3: Numpy\n")
+```
+
+```
+## 13
+```
+
+```python
+f.close()
+```
+
+注意文件写出完成后，需要关闭文件，否则会一直建立关联，占用资源
+
+---
+
+写出模式下，之前的内容会会被覆盖，如果希望添加到已有内容中，需要使用添加模式
+
+
+```python
+f = open("log.txt", "a")
+f.write("Day 4: Scrapy\n")
+```
+
+```
+## 14
+```
+
+```python
+f.close()
+```
+
+---
+
+## with关键字
+
+使用`with`关键字系统会自动调用`f.close`方法
+
+
+```python
+with open("log.txt","r") as f:
+  for l in f.readlines():
+    print(l,end = "")
+```
+
+```
+## Day 2: Basics
+## Day 3: Numpy
+## Day 4: Scrapy
+```
+
+---
+
+`readlines`方法是逐行读入文件，是一个天然的迭代器
+
+
+```python
+with open("log.txt","a") as f:
+  f.write("Day 5: Machine Learning\n")
+```
+
+```
+## 24
+```
+
+---
+
+### google文件
+
+
+```python
+import json
+with open("./data/pybasics/google100.txt","r") as f:
+  for pt in f.readlines():
+    patent = json.loads(pt)
+    if len(patent["ipc"]) &gt; 0:
+        for ipc in patent["ipc"]:
+            with open('./data/pybasics/ipc.txt', 'a') as fs:
+                fs.write("{1}{0}{2}\n".format("|",patent["application_number"],
+                                                          ipc["code"]))
+```
+
+```
+## 26
+## 25
+## 25
+```
+
+---
+
+# os模块
+
+`os`提供了帮你执行文件处理操作的方法，比如重命名和删除文件。
+
+|方法|作用|
+|:------|:-------------------|
+|`remove`|删除文件|
+|`rename`|重名命文件|
+|`mkdir`|创建新目录|
+|`chdir`|改变当前目录|
+|`getcwd`|查看当前目录|
+|`rmdir`|删除目录|
+
+---
+
+# 命令行参数
+
+```
+import sys
+print(sys.argv)
+```
+
+---
+
+# 高德API（感谢张繁）
+
+步骤1：申请“Web服务API”密钥（key）
+
+- 登录高德开放平台控制台https://console.amap.com/，**注册**成为开发者
+
+- 进入**应用管理——我的应用——创建新应用**
+
+&lt;img src="img/04/gaode1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+- 选中**添加Key**
+
+&lt;img src="img/04/gaode2.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+- 提交添加Key申请
+
+&lt;img src="img/04/gaode3.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+- 个人Key已生成完成
+
+&lt;img src="img/04/gaode4.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+个人开发者日配额为5,000次，企业开发者账号的日配额则为3,000,000次，超出配额的部分会返回空值。
+
+---
+
+步骤2：拼接HTTP请求URL
+
+地理编码API的服务地址如下，其中parameters代表的参数包括必填参数和可选参数，所有参数均使用和号字符(&amp;)进行分隔。
+
+URL：https://restapi.amap.com/v3/geocode/geo?parameters
+
+```
+url = f'https://restapi.amap.com/v3/geocode/geo?address={location}&amp;output=XML&amp;key={key}'
+```
+
+address={location}表示地址参数，用花括号`{}`包裹的location是一个变量，表示要查询的地址，output=XML表示输出格式参数，指定返回的数据格式为XML，key则是在步骤1中申请的Key编码。
+
+---
+
+步骤3：接收HTTP请求返回的数据并解析数据
+
+从API返回的数据中，选择我们需要的参数进行搜集。主要的地理编码信息参数有country、province、city、district、street、number、location等。location代表对应地址的坐标点，返回的是经纬度的坐标。另外，参数formatted_country是标准化后的地址信息完整字符串
+
+---
+
+## 结果示例
+
+&lt;img src="img/04/gaode5.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 注意事项
+
+- **中国大陆以外地址信息缺失**。香港、澳门地区数据质量较低，台湾地区、海外的地址信息无法查询
+
+- **设置适合的并发数。**并发数并不是越高越好，企业开发者的账号最大并发是100，但实际有约25%的数据返回空值，需要多轮运行，或者将并发数调小一点缓解返回空值较多的问题，例如设置为80个并发。
+
+- **预处理地址信息中特殊字符。**特殊字符的出现会影响url的判断，这也将导致空值的出现，需要提前对原始数据进行预处理。地址信息中常见的有井号“#”和顿号“、”。通常的做法有：将“#”替换为字符“号”，将顿号及其后续字符串删除。
+
+- **保持网络畅通**，建议关闭各种VPN，以避免运行过程中网络因素导致的报错，并且运行速率与网络质量有关，网络质量高才能跑高并发。
+
+---
+# 知识点
+
+- 数据类型、数据结构、控制流程、函数与模块、数据读写、命令行运行
+
+- 谷歌数据拆分
+
+- 高德API
+
+---
+
+# 课后练习
+
+1. 使用高德API获取中国所有985大学的地理位置
+
+2. 从google专利文件中拆分出专利的filling date|publication date|grant date|priority date， 并将拆分过程写成针对文件的函数，从命令行直接运行，参数为文件名（google100.txt）
+
+---
+
+class: inverse,middle,center
+# 所有语言都是数据类型、数据结构、控制流程、函数、数据读写的混合体
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "googlecode",
+"highlightLines": true,
+"highlightLanguage": "r",
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--Hat-tip: https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/-->
+<style>
+.logo {
+  background-image: url(img/IDEALAB.jpeg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 110px;
+  height: 128px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

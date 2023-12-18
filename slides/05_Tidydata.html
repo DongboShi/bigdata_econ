@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>第五讲：整齐数据</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="史冬波" />
+    <meta name="date" content="2023-12-10" />
+    <script src="libs/header-attrs-2.24/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link rel="stylesheet" href="css/nhsr.css" type="text/css" />
+    <link rel="stylesheet" href="css/nhsr-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+class: title-slide, left, bottom
+
+# 第五讲：整齐数据
+----
+## **研究单位、整齐数据、关系代数、Dplyr、Tidyr**
+### 史冬波
+### 2023-12-10
+
+---
+
+# 一些技术问题
+
+* 高德地图API需要安装requests模块
+
+* WSL无法安装MySQL，SQL语法都是非常接近的，以SQLite做例子学习语法即可
+
+* 下次课会介绍SQLite、MySQL以及PostgreSQL
+
+* brew 安装之后需要确定python版本是否对应
+
+---
+
+# 学习目标
+
+--
+
+* 研究单位与整齐数据
+
+--
+
+* 关系代数
+
+--
+
+* 关系代数在R中的实现
+
+
+---
+
+# 课前准备
+
+- 安装tidyr与dplyr包
+
+- 数据scientst_pub.csv (dropbox)
+
+---
+
+# 数据整理的目的
+
+- 什么时候是个头？
+
+- 反过来讲，数据整理的下一步是统计分析与可视化
+
+- 要使用什么数据进行这一步？
+
+---
+
+## 分析单位（unit of analysis）与观测单位（unit of observation）
+
+- 分析单位是一个"单位"的概念，类似于*千克，公里*
+
+- **分析单位是研究设计中用于比较研究对象差异的最小计量单位**
+
+    - 研究教育回报的研究设计，研究对象为上海市的所有应届毕业生，研究者可以通过普查的方式得到所有人的受教育年限与收入水平，此时的分析单位是**个人**
+    - 研究问题转化为研究生教育对收入的影响，此时，分析单位就不再是**个人**，而成为*研究生学历*与*研究生以下学历*的两个群体
+
+- **观测单位(unit of observation)**，指的是观测数据中的计量单位，数据每一行的单位
+
+    - 在上面的两个例子里面，数据都是在个人层面采集的，观测单位都是**个人**
+    - 观测单位对应了一张表格的`key`
+
+---
+
+## 单位与变量
+
+分析单位是实证研究的钥匙，当我们开始一项研究的时候，第一个要回答的问题便是这个研究的自变量与因变量分别是在什么"单位"上测量的。同样的道理，当我们去精读别人的论文时，首先要理解的便是回归中的分析单位与观测单位。
+
+如果论文的识别如下：
+
+`\(y_{i,j,t} = \alpha + \beta \times x_{j,t} + \epsilon_{i,j,t}\)`
+
+- 分析单位是{j,t}，而观测单位是{i,j,t}，在回归表中的观测值数量（样本大小N）应该等于 I \* J \* T
+
+看懂回归表格中的观测值数量是判断回归是否看懂的黄金标准
+
+---
+
+# 整齐数据（tidy data）
+
+表是我们数据分析时使用到的最主要的数据结构。"表"是一个二维的数据结构，表的基本元素是单元格（cell），具有行（row）与列（volume）两个属性（大多数时候，行列是不可以互换的）。每个单元格中储存一个数据。
+
+**1. 每一列都储存同一个变量，且相同变量都储存在同一列**
+
+**2. 每一行都储存对观测单元的一个观测，且同一个观测都储存于同一行**
+
+**3. 一个表储存同一个观测单元**
+
+
+---
+
+## 整齐数据与观测单位
+
+数据是否满足整体标准，取决于具体的研究设计。下面的表格哪一个整齐数据？
+
+|个人ID|课程成绩|课程名称|性别|年龄|
+|-------|--------|-------|-----|----|
+
+|个人ID|数学成绩|语文成绩|化学成绩|性别|年龄|
+|-------|--------|-------|--------|-----|----|
+
+
+---
+
+## 数据的凌乱点
+
+Hadley在他的论文中总结了5种最常见的凌乱点：
+
+1.  表头不是变量名，而是数据值
+2.  多个变量被储存在同一列
+3.  变量同时被储存在行与列中
+4.  存在两个及以上的观测单元
+5.  同一组观测被存在多行中
+
+永远不要低估数据的凌乱程度，在实际数据分析时遇到超出想象的情形也无需大惊小怪。
+
+---
+
+# 关系代数
+
+- 关系代数定义了使用表格组织数据所对应的数据运算
+
+- 一切都是关系，关系就是表格
+
+- 一套简洁高效的基于表格的运算，就可以实现数据计算的正交分解，一部分计算机科学家可以专注于优化关系代数的实现效率，而其他人则只用了解最简单的约定来完成自己数据分析工作，可充分利用前者的集体智慧。
+
+- 关系代数是表格数据处理的最佳工具。
+
+---
+
+## 关系代数运算
+
+- 集合运算：交集、并集与补集。
+
+- 线性运算：笛卡尔积、（按列）投影与（按行）选取。
+
+常用的非关系代数的扩展运算包括：
+
+- 关系运算：两个表格之间连接，分为左（右）连接、内连接、外连接。
+
+- 分组与聚集运算：一张大表聚集成小表，转换unit
+
+相关研究诞生了1981年（Edgar F. Codd）和2014年两届图灵奖（Michael Stonebraker）
+
+
+---
+
+# dplyr
+
+关系代数思想在R中的直接对应了`data.frame`数据结构。R语言大神Hadley Wickham开发了`dplyr`和`tidyr`包来实现各类关系代数运算与其他表格运算。这两个包的语法非常直观、灵活的，是数据整理的最佳工具，无出其右。
+
+---
+
+## 集合运算 
+
+`intersect`，`union`, `setdiff`函数可以直接用于`data.frame`的交并补运算
+
+
+```r
+library(dplyr)
+stdnt_1 &lt;- data.frame(ID = 1:4,
+                      name = c("张三","李四","王二","赵五"),
+                      age = c(23,24,22,23),
+                      gender = c("M","M","F","M"))
+stdnt_2 &lt;- data.frame(ID = c(2,5), 
+                      name = c("李四","刘六"),
+                      age = c(24,21), 
+                      gender = c("M","F"))
+
+intersect(stdnt_1,stdnt_2)
+union(stdnt_1,stdnt_2)
+setdiff(stdnt_1,stdnt_2)
+```
+
+---
+
+## 线性运算
+
+### 投影（选择变量）
+
+`select`函数用于投影操作，第一种用法是使用变量名组成的向量作为参数选出对应的变量，第二种办法是使用数字组成的向量选出对应位置的变量，例如：
+
+
+```r
+select(stdnt_1, c(name,age)) 
+```
+
+```
+##   name age
+## 1 张三  23
+## 2 李四  24
+## 3 王二  22
+## 4 赵五  23
+```
+
+```r
+select(stdnt_1, c(1,3))
+```
+
+```
+##   ID age
+## 1  1  23
+## 2  2  24
+## 3  3  22
+## 4  4  23
+```
+
+---
+
+当参数加入`-`时，删除对应的变量，例如
+
+
+```r
+select(stdnt_1, -c(name,age))
+```
+
+```
+##   ID gender
+## 1  1      M
+## 2  2      M
+## 3  3      F
+## 4  4      M
+```
+
+---
+
+`dplyr`提供了配套函数，让`select`更加灵活
+
+|配套函数|功能|
+|:-----|:-----------|
+|`starts_with("a")`|选择名字以`a`开头的变量|
+|`ends_with("a")`|选择名字以`a`结尾的变量|
+|`contains("a")`|选择名字中含有`a`的变量|
+|`matches(pattern)`|选择正则表达式匹配的变量|
+|`num_range("x", 1:3)`|选择x1, x2, x3|
+
+---
+
+### 选取（选择观测）
+
+`slice`函数可以使用数值向量来选择对应的行，`-`表示删除对应行
+
+
+```r
+slice(stdnt_1, 1:3)
+```
+
+```
+##   ID name age gender
+## 1  1 张三  23      M
+## 2  2 李四  24      M
+## 3  3 王二  22      F
+```
+
+```r
+slice(stdnt_1, -2)
+```
+
+```
+##   ID name age gender
+## 1  1 张三  23      M
+## 2  3 王二  22      F
+## 3  4 赵五  23      M
+```
+
+---
+
+`slice_`扩展函数
+
+|函数|功能|
+|:-----|:-----------|
+|`slice_head(n)`|提取前n行，等价于`head(n)`|
+|`slice_tail(n=5)`|提取最后n行，等价于`tail(n)`|
+|`slice_min(x, n)`|提取x值最小的n行|
+|`slice_max(x, n=1)`|提取x值最大的n行|
+
+---
+
+&lt;br/&gt;
+
+`filter`函数则可以用逻辑判断来选取满足条件的行，不同条件用`,`分割，例如选出A中年龄大于23，且性别为男性的行，可以使用下面的代码。
+
+
+```r
+filter(stdnt_1, age &gt; 23, gender == "M")
+```
+
+```
+##   ID name age gender
+## 1  2 李四  24      M
+```
+
+---
+
+### 笛卡尔积
+
+笛卡尔积在研究设计中对应了面板数据，即每一个观测单位上都有观测值的数据结构。`tidyr::expand_grid`函数可以生成其参数的所有可能的组合
+
+
+```r
+library(tidyr)
+expand_grid(ID = 1:6, year = 1998:2000) 
+```
+
+```
+## # A tibble: 18 × 2
+##       ID  year
+##    &lt;int&gt; &lt;int&gt;
+##  1     1  1998
+##  2     1  1999
+##  3     1  2000
+##  4     2  1998
+##  5     2  1999
+##  6     2  2000
+##  7     3  1998
+##  8     3  1999
+##  9     3  2000
+## 10     4  1998
+## 11     4  1999
+## 12     4  2000
+## 13     5  1998
+## 14     5  1999
+## 15     5  2000
+## 16     6  1998
+## 17     6  1999
+## 18     6  2000
+```
+
+```r
+stdnt &lt;- union(stdnt_1, stdnt_2)
+expand_grid(stdnt, year = 1998:2000) %&gt;% head()
+```
+
+```
+## # A tibble: 6 × 5
+##      ID name    age gender  year
+##   &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;int&gt;
+## 1     1 张三     23 M       1998
+## 2     1 张三     23 M       1999
+## 3     1 张三     23 M       2000
+## 4     2 李四     24 M       1998
+## 5     2 李四     24 M       1999
+## 6     2 李四     24 M       2000
+```
+
+---
+
+&lt;br/&gt;
+
+`nesting`函数可以看作是`expand_grid`的反函数，可以从数据中提炼出不重复的组合。
+
+```r
+stdnt_panel &lt;- expand_grid(stdnt, year = 1998:2000)
+stdnt_panel_dup &lt;- rbind(stdnt_panel,stdnt_panel)
+nesting(stdnt_panel_dup) 
+```
+
+```
+## # A tibble: 15 × 5
+##       ID name    age gender  year
+##    &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;int&gt;
+##  1     1 张三     23 M       1998
+##  2     1 张三     23 M       1999
+##  3     1 张三     23 M       2000
+##  4     2 李四     24 M       1998
+##  5     2 李四     24 M       1999
+##  6     2 李四     24 M       2000
+##  7     3 王二     22 F       1998
+##  8     3 王二     22 F       1999
+##  9     3 王二     22 F       2000
+## 10     4 赵五     23 M       1998
+## 11     4 赵五     23 M       1999
+## 12     4 赵五     23 M       2000
+## 13     5 刘六     21 F       1998
+## 14     5 刘六     21 F       1999
+## 15     5 刘六     21 F       2000
+```
+
+---
+
+&lt;br/&gt;
+
+在实际的研究设计中，第一步就是确定最终的数据结构，这其中的关键是观测单位。根据观测单位，又可以将面板数据分为平衡面板数据与非平衡面板数据，这两种数据结构都可以通过`expand_grid`函数生成。
+
+---
+
+### 扩张
+
+线性空间的扩张对应于生成新的变量，`mutate`函数可以生成新的变量或对现有变量进行赋值，例如，在回归分析汇总我们经常会加入年龄的平方项
+
+
+```r
+mutate(stdnt, 
+       age2 = age^2,
+       name = factor(name),
+       female = as.numeric(gender == "M"))
+```
+
+```
+##   ID name age gender age2 female
+## 1  1 张三  23      M  529      1
+## 2  2 李四  24      M  576      1
+## 3  3 王二  22      F  484      0
+## 4  4 赵五  23      M  529      1
+## 5  5 刘六  21      F  441      0
+```
+
+---
+
+&lt;br/&gt;
+
+假设这些同学的平时和期末成绩如下表，平时成绩占比35%，期末成绩占比65%，那么可以计算每个同学最终的课程成绩。
+
+
+```r
+score &lt;- data.frame(ID = 1:5, 
+                    hw1 = c(90,87,99,80,100),
+                    hw2 = c(95,0,88,98,98),
+                    hw3 = c(80,0,90,85,95),
+                    final = c(83,60,88,90,94))
+mutate(score, total = 0.35*(hw1+hw2+hw3)/3+0.65*final)
+```
+
+```
+##   ID hw1 hw2 hw3 final    total
+## 1  1  90  95  80    83 84.86667
+## 2  2  87   0   0    60 49.15000
+## 3  3  99  88  90    88 89.51667
+## 4  4  80  98  85    90 89.18333
+## 5  5 100  98  95    94 95.28333
+```
+
+---
+
+&lt;br/&gt;
+
+`transmute`函数可以在生成新的变量的同时，删除掉所有老的变量。
+
+
+```r
+transmute(score, total = 0.35*(hw1+hw2+hw3)/3+0.65*final)
+```
+
+```
+##      total
+## 1 84.86667
+## 2 49.15000
+## 3 89.51667
+## 4 89.18333
+## 5 95.28333
+```
+
+
+---
+
+`mutate`可以搭配其他窗口函数[^1](窗口函数是SQL语言中在不改变行数的情况下返回极值、排序等结果的函数)使用，满足用户多样化的需求。
+
+|函数                |功能                               |
+|--------------------|-----------------------------------|
+|`pmin`、`pmax`      |多个变量逐行对比，返回相应变量的最小、最大值|
+|`cummin`、 `cummax` |单个变量的累计最小、最大值|
+|`cumsum`、`cumprod` |累计求和、乘积|
+|`between`           |判断是否介于两个值之间|
+|`cumall`、`cumany`  |累计是否全部（任一）为TRUE      |
+|`cummean`           |累计均值                    |
+|`lead(n)`、`lag(n)` |当前行的前（后）n行的结果|
+|`ntile(n)`          |将数据平分成n份后，返回当前行所属组别|
+|`dense_rank`        |当前行的排名，排名不间断|
+|`min_rank`          |当前行的排名，排名允许间断，最大排名数与行数相同|
+|`percent_rank`        |当前行的百分比排名           |
+|`row_numbers`        |当前行数|
+
+---
+
+## 管道
+
+`%&gt;%`的作用方式是把管道符左边的结果传输过去成为管道符右边函数的第一个参数
+
+
+```r
+score %&gt;% 
+  mutate(total = 0.35*(hw1+hw2+hw3)/3+0.65*final) %&gt;% 
+  filter(total &lt; 60) %&gt;% 
+  pull(ID)
+```
+
+```
+## [1] 2
+```
+
+---
+
+## 数据连接
+
+### 表格的主键
+
+主键（primary key），即表格中行不重复的列的最小集
+
+理论上，任何表格都应该确定其主键，主键可以是一列也可以是多列的组合。可以使用count函数确定主键
+
+
+```r
+stdnt %&gt;% 
+  count(ID) %&gt;% 
+  filter(n&gt;1) %&gt;% 
+  nrow()
+```
+
+```
+## [1] 0
+```
+
+---
+
+### 内连接 （inner_join）
+
+内连接仅仅匹配两个表之间的键可以匹配的结果。`dplyr`提供了`inner_join`函数来实现内连接，`by`参数用于指定两边表格的键。例如，
+
+
+```r
+inner_join(score, stdnt_1, by = "ID")
+```
+
+```
+##   ID hw1 hw2 hw3 final name age gender
+## 1  1  90  95  80    83 张三  23      M
+## 2  2  87   0   0    60 李四  24      M
+## 3  3  99  88  90    88 王二  22      F
+## 4  4  80  98  85    90 赵五  23      M
+```
+
+```r
+# 等价于
+score %&gt;% inner_join(stdnt_1, by = "ID")
+```
+
+```
+##   ID hw1 hw2 hw3 final name age gender
+## 1  1  90  95  80    83 张三  23      M
+## 2  2  87   0   0    60 李四  24      M
+## 3  3  99  88  90    88 王二  22      F
+## 4  4  80  98  85    90 赵五  23      M
+```
+
+---
+
+&lt;br/&gt;
+
+为了保障研究设计执行的严谨性，可以设置参数为`multiple = "error"`，此时当两表一对多链接关系时，`inner_join`会报错。
+
+
+
+```r
+score %&gt;% inner_join(stdnt_panel, by = "ID", multiple = "error")
+```
+
+--
+
+反过来，如果左表与右表是多对一的关系，设置参数`multiple = "error"`时，也不会报错。
+
+
+```r
+stdnt_panel %&gt;% inner_join(score, by = "ID",multiple = "error")
+```
+
+```
+## Warning: Specifying `multiple = "error"` was deprecated in dplyr 1.1.1.
+## ℹ Please use `relationship = "many-to-one"` instead.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.
+```
+
+```
+## # A tibble: 15 × 9
+##       ID name    age gender  year   hw1   hw2   hw3 final
+##    &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+##  1     1 张三     23 M       1998    90    95    80    83
+##  2     1 张三     23 M       1999    90    95    80    83
+##  3     1 张三     23 M       2000    90    95    80    83
+##  4     2 李四     24 M       1998    87     0     0    60
+##  5     2 李四     24 M       1999    87     0     0    60
+##  6     2 李四     24 M       2000    87     0     0    60
+##  7     3 王二     22 F       1998    99    88    90    88
+##  8     3 王二     22 F       1999    99    88    90    88
+##  9     3 王二     22 F       2000    99    88    90    88
+## 10     4 赵五     23 M       1998    80    98    85    90
+## 11     4 赵五     23 M       1999    80    98    85    90
+## 12     4 赵五     23 M       2000    80    98    85    90
+## 13     5 刘六     21 F       1998   100    98    95    94
+## 14     5 刘六     21 F       1999   100    98    95    94
+## 15     5 刘六     21 F       2000   100    98    95    94
+```
+
+---
+
+### 反连接
+
+反连接是内连接的反向操作，即只保留第一个表格中无法匹配第二个表格的结果
+
+
+```r
+score %&gt;% anti_join(stdnt_1, by = "ID")
+```
+
+```
+##   ID hw1 hw2 hw3 final
+## 1  5 100  98  95    94
+```
+
+---
+
+### 左连接（left_join）、右连接（right_join）与全连接（full_join）
+
+左连接是内连接的扩展运算，无论是否key匹配，左表的所有观测都会保留，并将缺失变量（下面的例子中是`name`、`age`、`gender`）填充为`NA`，左连接也是非对称运算
+
+当两边的变量名字不同时，可以使用`by=c("左名"="右名")`的格式指定key的对应关系。
+
+
+```r
+score %&gt;% left_join(stdnt_1, by = "ID")
+```
+
+```
+##   ID hw1 hw2 hw3 final name age gender
+## 1  1  90  95  80    83 张三  23      M
+## 2  2  87   0   0    60 李四  24      M
+## 3  3  99  88  90    88 王二  22      F
+## 4  4  80  98  85    90 赵五  23      M
+## 5  5 100  98  95    94 &lt;NA&gt;  NA   &lt;NA&gt;
+```
+
+---
+
+&lt;br/&gt;
+
+- `dplyr`还提供了`right_join`函数来保留右表中所有的观测。在实践中，左连接就足够满足所有的需求了。
+
+- `full_join`可以保留左右两表的所有观测。`semi_join`类似于`inner_join`但是只保留左表的变量，实质上是一个筛选函数。
+
+
+---
+
+## 数据分组与汇总
+
+`group_by`函数对数据进行分组，`group_by`可以指定一个或多个变量作为分组依据。`ungroup`函数可以去除数据的分组
+
+案例使用科学家的论文数据，scientst_pub.csv (已放入dropbox)
+
+### 分组后生成新变量
+
+数据分组后使用mutate生成新变量时，变量在每一组内进行计算赋值，不改变行数。搭配各种窗口函数可以实现多种目的。
+
+
+```r
+library(readr)
+paper &lt;- read_csv("/Users/birdstone/Library/CloudStorage/Dropbox/bigdata_econ_2023/data/assignment_idaccuracy/scientist_pub.csv")
+```
+
+```
+## Rows: 3410 Columns: 14
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr (10): ut_char, uniqueID, fullname, surname, givenname, paper_type, title...
+## dbl  (4): auseqence, type, pub_year, startyear
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+```r
+paper %&gt;% group_by(uniqueID) %&gt;% mutate(num_pub = n())
+```
+
+```
+## # A tibble: 3,410 × 15
+## # Groups:   uniqueID [80]
+##    ut_char          uniqueID auseqence fullname surname givenname  type pub_year
+##    &lt;chr&gt;            &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+##  1 WOS:00023464120… 0_105            1 WANG, JL WANG    JL            2     2006
+##  2 WOS:00024951450… 0_105            1 WANG, J… WANG    JIALIANG      1     2007
+##  3 WOS:00027183020… 0_105            4 Wang, J… WANG    JIALIANG      1     2009
+##  4 WOS:00027449660… 0_105            1 Wang, J… WANG    JIALIANG      1     2010
+##  5 WOS:00027784480… 0_105            4 Wang, J… WANG    JIALIANG      1     2010
+##  6 WOS:00028784530… 0_105            5 Wang, J… WANG    JIALIANG      1     2011
+##  7 WOS:00031699690… 0_105           10 Wang, J… WANG    JIALIANG      1     2013
+##  8 WOS:00033592000… 0_105            3 Wang, J… WANG    JIALIANG      1     2014
+##  9 WOS:00035471820… 0_105            8 Wang, J… WANG    JIALIANG      1     2015
+## 10 WOS:00037123290… 0_105           11 Wang, J… WANG    JIALIANG      1     2016
+## # ℹ 3,400 more rows
+## # ℹ 7 more variables: paper_type &lt;chr&gt;, startyear &lt;dbl&gt;, title &lt;chr&gt;,
+## #   journal &lt;chr&gt;, issn &lt;chr&gt;, doi &lt;chr&gt;, num_pub &lt;int&gt;
+```
+
+---
+
+### 分组后汇总
+
+大部分情况下，`group_by`与`summarise`联合用于数据汇总。例如，下列代码可以用于计算科学家每年每种类型的论文数量
+
+
+```r
+paper %&gt;% 
+  group_by(uniqueID,pub_year,paper_type) %&gt;% 
+  summarise(num_pub = n())
+```
+
+```
+## `summarise()` has grouped output by 'uniqueID', 'pub_year'. You can override
+## using the `.groups` argument.
+```
+
+```
+## # A tibble: 916 × 4
+## # Groups:   uniqueID, pub_year [817]
+##    uniqueID pub_year paper_type num_pub
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;        &lt;int&gt;
+##  1 0_100        2007 Article          1
+##  2 0_100        2011 Article          1
+##  3 0_100        2013 Article          3
+##  4 0_100        2014 Article          1
+##  5 0_100        2015 Article          1
+##  6 0_100        2016 Article          2
+##  7 0_100        2017 Article          1
+##  8 0_101        2007 Article          1
+##  9 0_101        2008 Article          5
+## 10 0_101        2009 Article          3
+## # ℹ 906 more rows
+```
+
+
+---
+
+常见的汇总函数总结如下：
+
+|函数                |功能                               |
+|--------------------|-----------------------------------|
+|`min`、`max`      |最小、最大值|
+|`mean`、 `median` |均值与中位数|
+|`var`、`sd` |方差、标准差|
+|`sum`|向量求和|
+|`first`|向量的第一个值|
+|`last`|向量的最后一个值|
+|`nth`|向量的第n个值|
+|`n`|行数|
+|`n_distinct`|去重后的行数|
+
+---
+
+## 宽数据与长数据的转换
+
+`tidyr`新设计了`pivot_longer`和`pivot_wider`函数，代替之前的`gather`和`spread`函数，来实现长宽数据转换。新设计的函数语法更加直观，功能更全，是长宽数据转换的最佳工具。
+
+---
+
+### 宽数据转长数据
+
+宽数据转长数据的最简单情形是，每一行是一个观测，但是同一变量储存在不同列中
+
+- `cols`参数用于指定转换的变量
+
+- `names_to`参数用于指定一个新变量名（缺省值为`name`）
+
+- `values_to`用于指定另一个新变量名（缺省值为`value`）
+
+- 如果转换结果中不希望保留`NA`，可以设置参数`values_drop_na=TRUE`
+
+
+```r
+score %&gt;% pivot_longer(cols = hw1:final,
+                       names_to = "test",
+                       values_to = "score") 
+```
+
+---
+
+平时作业成绩与期末作业成绩，也可以看做是两个不同的变量，此时只用将`hw`对应的变量转化为长数据。
+
+
+```r
+score %&gt;% 
+  pivot_longer(cols = starts_with("hw"),
+               names_to = "homework",
+               values_to = "score")
+```
+
+---
+
+### 长数据转宽数据
+
+在需要生成描述性统计表或者直观地展示数据时，往往需要将长数据转变为宽数据。`pivot_wider`函数，作为`pivot_longer`的反函数
+
+
+```r
+score_long &lt;- score %&gt;% 
+  pivot_longer(cols = -ID,
+               names_to = "test",
+               values_to = "score") %&gt;% 
+  slice(-2)
+
+score_long %&gt;% pivot_wider(names_from = test,
+                           values_from = score,
+                           values_fill = 0)
+```
+
+---
+
+## 其他定制操作
+
+### 排序
+`arrange`函数用于变量的顺序排列，联合`desc`可用于逆序排列。
+
+
+```r
+paper %&gt;% arrange(uniqueID, desc(pub_year))
+```
+
+```
+## # A tibble: 3,410 × 14
+##    ut_char          uniqueID auseqence fullname surname givenname  type pub_year
+##    &lt;chr&gt;            &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+##  1 WOS:00041198100… 0_100            3 Liu, Xu… LIU     XUNYING       1     2017
+##  2 WOS:00037745610… 0_100            1 Liu, Xu… LIU     XUNYING       1     2016
+##  3 WOS:00038267780… 0_100            2 Liu, Xu… LIU     XUNYING       1     2016
+##  4 WOS:00034807070… 0_100            2 Liu, Xu… LIU     XUNYING       1     2015
+##  5 WOS:00034085000… 0_100            1 Liu, X   LIU     X             2     2014
+##  6 WOS:00031152480… 0_100            1 Liu, X   LIU     X             2     2013
+##  7 WOS:00031303470… 0_100            1 Liu, Xu… LIU     XUNYING       1     2013
+##  8 WOS:00031652420… 0_100            1 Liu, X   LIU     X             2     2013
+##  9 WOS:00029770940… 0_100            2 Liu, Xu… LIU     XUNYING       1     2011
+## 10 WOS:00024590980… 0_100            1 LIU, XU… LIU     XUNYING       1     2007
+## # ℹ 3,400 more rows
+## # ℹ 6 more variables: paper_type &lt;chr&gt;, startyear &lt;dbl&gt;, title &lt;chr&gt;,
+## #   journal &lt;chr&gt;, issn &lt;chr&gt;, doi &lt;chr&gt;
+```
+
+---
+
+### 抽样
+`sample_n`函数可以从数据框中随机无放回抽样
+
+
+```r
+paper %&gt;% sample(10)
+```
+
+```
+## # A tibble: 3,410 × 10
+##    startyear title       journal paper_type surname ut_char uniqueID  type issn 
+##        &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;    &lt;dbl&gt; &lt;chr&gt;
+##  1      2005 a novel ar… bioche… Article    WANG    WOS:00… 0_105        2 0264…
+##  2      2005 lzap, a pu… cancer… Article    WANG    WOS:00… 0_105        1 1535…
+##  3      2005 targeting … stem c… Article    WANG    WOS:00… 0_105        1 1066…
+##  4      2005 notch prom… stem c… Article    WANG    WOS:00… 0_105        1 1066…
+##  5      2005 integrin a… cell s… Article    WANG    WOS:00… 0_105        1 1934…
+##  6      2005 using a st… cancer… Article    WANG    WOS:00… 0_105        1 0008…
+##  7      2005 inhibition… clinic… Article    WANG    WOS:00… 0_105        1 1078…
+##  8      2005 jnk signal… cancer… Article    WANG    WOS:00… 0_105        1 0008…
+##  9      2005 critical f… neuro-… Article    WANG    WOS:00… 0_105        1 1522…
+## 10      2005 insulin-me… neuro-… Article    WANG    WOS:00… 0_105        1 1522…
+## # ℹ 3,400 more rows
+## # ℹ 1 more variable: pub_year &lt;dbl&gt;
+```
+
+---
+
+### 去重复
+
+`distinct`函数返回变量的去重结果，如果希望保留数据框中其它变量， 可以加选项`.keep_all=TRUE`。
+
+
+```r
+paper %&gt;% select(uniqueID) %&gt;% distinct()
+```
+
+```
+## # A tibble: 80 × 1
+##    uniqueID
+##    &lt;chr&gt;   
+##  1 0_105   
+##  2 0_118   
+##  3 0_143   
+##  4 0_161   
+##  5 0_124   
+##  6 0_37    
+##  7 0_39    
+##  8 0_52    
+##  9 0_100   
+## 10 0_101   
+## # ℹ 70 more rows
+```
+
+---
+
+### 缺失值处理
+
+`drop_na`函数用于删除指定变量有缺失值的行。
+
+
+```r
+paper %&gt;% drop_na(doi)
+```
+
+```
+## # A tibble: 3,410 × 14
+##    ut_char          uniqueID auseqence fullname surname givenname  type pub_year
+##    &lt;chr&gt;            &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+##  1 WOS:00023464120… 0_105            1 WANG, JL WANG    JL            2     2006
+##  2 WOS:00024951450… 0_105            1 WANG, J… WANG    JIALIANG      1     2007
+##  3 WOS:00027183020… 0_105            4 Wang, J… WANG    JIALIANG      1     2009
+##  4 WOS:00027449660… 0_105            1 Wang, J… WANG    JIALIANG      1     2010
+##  5 WOS:00027784480… 0_105            4 Wang, J… WANG    JIALIANG      1     2010
+##  6 WOS:00028784530… 0_105            5 Wang, J… WANG    JIALIANG      1     2011
+##  7 WOS:00031699690… 0_105           10 Wang, J… WANG    JIALIANG      1     2013
+##  8 WOS:00033592000… 0_105            3 Wang, J… WANG    JIALIANG      1     2014
+##  9 WOS:00035471820… 0_105            8 Wang, J… WANG    JIALIANG      1     2015
+## 10 WOS:00037123290… 0_105           11 Wang, J… WANG    JIALIANG      1     2016
+## # ℹ 3,400 more rows
+## # ℹ 6 more variables: paper_type &lt;chr&gt;, startyear &lt;dbl&gt;, title &lt;chr&gt;,
+## #   journal &lt;chr&gt;, issn &lt;chr&gt;, doi &lt;chr&gt;
+```
+
+---
+
+`fill`函数用于按行填充缺失值
+
+
+```r
+df &lt;- data.frame(ID = c(1,NA,NA,2,NA,3),
+                 score = c(90,87,99,80,100,92),
+                 year = c(2021,2022,2023,2022,2023,2023))
+df %&gt;% fill(ID)
+```
+
+```
+##   ID score year
+## 1  1    90 2021
+## 2  1    87 2022
+## 3  1    99 2023
+## 4  2    80 2022
+## 5  2   100 2023
+## 6  3    92 2023
+```
+
+---
+
+`coalesce`函数可以用于`NA`值的赋值，`na_if`函数是它的反函数。
+
+
+```r
+df %&gt;% mutate(ID = coalesce(ID,0),IDnew = na_if(ID,0))
+```
+
+```
+##   ID score year IDnew
+## 1  1    90 2021     1
+## 2  0    87 2022    NA
+## 3  0    99 2023    NA
+## 4  2    80 2022     2
+## 5  0   100 2023    NA
+## 6  3    92 2023     3
+```
+
+---
+
+### 拆分数据列
+
+`seperate`函数可以利用分隔符将列拆分为各自的变量列。`unite`函数是它的反函数
+
+
+```r
+df_sep &lt;- read_csv(
+"testid, succ/total
+1, 1/10
+2, 3/5
+3, 2/8")
+
+df_sep %&gt;% 
+  separate(
+    `succ/total`, 
+    into=c("succ", "total"), 
+    sep="/", 
+    convert=TRUE) 
+```
+
+---
+
+### 拼接数据
+`bind_rows`函数可以对两个或多个数据框纵向合并。要求变量集合是相同的，但变量次序可以不同，这一点比`rbind`函数方便。`bind_rows`函数可以将两个行数相同的数据框按行号对齐合并。
+
+
+```r
+paper1 &lt;- paper %&gt;% slice(1:10)
+paper2 &lt;- paper %&gt;% slice(11:20)
+paper1 %&gt;% bind_rows(paper2)
+```
+
+```
+## # A tibble: 20 × 14
+##    ut_char          uniqueID auseqence fullname surname givenname  type pub_year
+##    &lt;chr&gt;            &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+##  1 WOS:00023464120… 0_105            1 WANG, JL WANG    JL            2     2006
+##  2 WOS:00024951450… 0_105            1 WANG, J… WANG    JIALIANG      1     2007
+##  3 WOS:00027183020… 0_105            4 Wang, J… WANG    JIALIANG      1     2009
+##  4 WOS:00027449660… 0_105            1 Wang, J… WANG    JIALIANG      1     2010
+##  5 WOS:00027784480… 0_105            4 Wang, J… WANG    JIALIANG      1     2010
+##  6 WOS:00028784530… 0_105            5 Wang, J… WANG    JIALIANG      1     2011
+##  7 WOS:00031699690… 0_105           10 Wang, J… WANG    JIALIANG      1     2013
+##  8 WOS:00033592000… 0_105            3 Wang, J… WANG    JIALIANG      1     2014
+##  9 WOS:00035471820… 0_105            8 Wang, J… WANG    JIALIANG      1     2015
+## 10 WOS:00037123290… 0_105           11 Wang, J… WANG    JIALIANG      1     2016
+## 11 WOS:00037336060… 0_105            7 Wang, J… WANG    JIALIANG      1     2016
+## 12 WOS:00037727370… 0_105            4 Wang, J… WANG    JIALIANG      1     2016
+## 13 WOS:00038539570… 0_105            8 Wang, J… WANG    JIALIANG      1     2016
+## 14 WOS:00039918830… 0_105           12 Wang, J… WANG    JIALIANG      1     2017
+## 15 WOS:00039141920… 0_105            3 Wang, J… WANG    JIALIANG      1     2017
+## 16 WOS:00041769060… 0_105           10 Wang, J… WANG    JIALIANG      1     2017
+## 17 WOS:00025549980… 0_118            5 Zhang, … ZHANG   CHEN          1     2008
+## 18 WOS:00030632450… 0_118            4 Zhang, … ZHANG   CHEN          1     2012
+## 19 WOS:00028832280… 0_143            1 Cui, Me… CUI     MENG          1     2011
+## 20 WOS:00028886000… 0_143            1 Cui, Me… CUI     MENG          1     2011
+## # ℹ 6 more variables: paper_type &lt;chr&gt;, startyear &lt;dbl&gt;, title &lt;chr&gt;,
+## #   journal &lt;chr&gt;, issn &lt;chr&gt;, doi &lt;chr&gt;
+```
+
+---
+# 知识点
+
+* 研究单位与整齐数据
+
+* 关系代数
+
+
+* 关系代数在R中的实现
+
+---
+
+# 课后练习
+
+数据库识别号作业第二弹
+
+1. 从Aminer的数据表格中筛选出同一个作者ID（uniqueID）下面同样被包含在scientist_pub.csv中的论文数据；
+
+    提示：使用论文doi号、期刊、title、发表年份等信息；stringr包中str_to_upper函数可以将字符转化成大写字符
+
+2. 计算每一个作者ID的精准度和查全率；
+
+    提示：精准度定义为预测数据集（aminer）中预测准确的数据（即同样包含在scientist_pub表中）所占比重；查全率的定义为标准数据集（scientist_pub）中被预测准确的数据（即同样包含在aminer表中）所占比重
+    
+3. 计算aminer数据库的平均精准度和查全率
+
+---
+
+class: inverse,middle,center
+# 一切都是关系，关系就是表格
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "googlecode",
+"highlightLines": true,
+"highlightLanguage": "r",
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--Hat-tip: https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/-->
+<style>
+.logo {
+  background-image: url(img/IDEALAB.jpeg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 110px;
+  height: 128px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

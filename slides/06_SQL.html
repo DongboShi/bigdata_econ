@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>第六讲：结构查询语言SQL</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="史冬波" />
+    <meta name="date" content="2023-12-14" />
+    <script src="libs/header-attrs-2.24/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link rel="stylesheet" href="css/nhsr.css" type="text/css" />
+    <link rel="stylesheet" href="css/nhsr-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+class: title-slide, left, bottom
+
+# 第六讲：结构查询语言SQL
+----
+## **关系型数据库、SQLite、Postgresql、MySQL、SQL的API**
+### 史冬波
+### 2023-12-14
+
+---
+
+# 关于作业
+
+* 填鸭式教学
+
+* 课件是伐木舟，作业是航母？
+
+* 助教习题课、小组答疑
+
+* 明天与下周一的下午一点半到四点，分别连续两讲，地点：中科院与中科院大学
+
+---
+
+# 学习目标
+
+--
+
+* SQL语法
+
+--
+
+* 主要的SQL实现
+
+--
+
+* R与Python如何调用SQL
+
+
+---
+
+# 课前准备
+
+- 安装sqlite3、postgresql
+
+- 数据pub_211.csv (dropbox)
+
+---
+
+# SQL
+
+- 关系数据库的基本语言
+
+- 以关系代数为基础的数据管理程序，是对关系代数的程序实现
+
+- 描述型语言，描述选取什么的数据出来
+
+- 读的次数远大于写的次数
+
+- 开源关系型数据库：MariaDB(MySQL)、PostgreSQL以及SQLite
+
+---
+
+# SQLite3
+
+- SQLite是轻量级数据库用于教学与小型网络数据
+
+- Linux/WSL用户使用`apt install sqlite3`
+
+- macOS用户使用`brew install sqlite3`
+
+    
+---
+
+## 数据类型
+
+sqlite支持的数据类型如下：
+
+|变量|类型|
+|:-----|:----------|
+|NULL|缺失值|
+|INTEGER|整数|
+|REAL|8字节的浮点数|
+|TEXT|文本长度不限|
+|BLOB|二进制对象|
+
+
+---
+
+## 新建数据库与表格
+
+`sqlite`是轻量级数据库，每个数据库单独储存在一个`db`文件中。使用`sqlite3 testDB.db`来新建数据库。
+
+一般约定数据库语言的关键字全部使用大写字母，命令使用`;`结束。
+
+除去直接从外部读入数据外，还可以通过`CREATE`命令与`INSERT`命令创建表格并插入数据。
+
+```
+CREATE TABLE A (ID INTEGER, name TEXT, age INTEGER, gender TEXT);
+INSERT INTO A VALUES(1, '张三', 23, 'M');
+INSERT INTO A VALUES(2, '李四', 24, 'M');
+INSERT INTO A VALUES(3, '王二', 22, 'F');
+INSERT INTO A VALUES(4, '赵五', 23, 'M');
+```
+
+在SQL语言中，一切命令都是查询，使用`SELECT`，例如`SELECT * FROM A;`
+
+---
+
+## 集合运算
+
+交运算是INTERSECT，并运算是UNION，补运算是EXCEPT。
+
+```
+CREATE TABLE B (ID INTEGER, name TEXT, age INTEGER, gender TEXT);
+INSERT INTO B VALUES (2, '李四', 24, 'M'),(3, '王二', 22, 'F'),(4, '赵五', 23, 'M'),(5, '刘六', 21, 'F');
+SELECT * FROM A INTERSECT SELECT * FROM B;
+SELECT * FROM A UNION SELECT * FROM B;
+SELECT * FROM A EXCEPT SELECT * FROM B;
+```
+
+---
+
+## 线性运算
+
+### 投影
+
+使用`SELECT`命令来选择做投影运算，选择特定的列，对于大表，查询时要加上LIMIT关键字来限制选出的行数，避免卡死进程。
+
+```
+SELECT ID FROM A LIMIT 1;
+```
+
+---
+
+### 选取
+
+WHERE关键字配合差查询语句起到过滤的作用，可以搭配等式与不等式、IS NULL、BETWEEN、IN、LIKE等表达式使用。
+
+```
+SELECT * FROM A WHERE ID = 1;
+SELECT * FROM A WHERE ID &gt; 1;
+SELECT * FROM A WHERE ID BETWEEN 1 AND 3;
+SELECT * FROM A WHERE name LIKE '张%';
+SELECT * FROM A WHERE age IN (21,24);
+```
+
+---
+
+### 笛卡尔积
+
+笛卡尔积使用CROSS JOIN实现
+
+```
+SELECT A.ID,B.NAME FROM A CROSS JOIN B;
+```
+
+或者直接联合查询
+
+```
+SELECT * FROM A,B;
+```
+
+---
+
+### 扩张
+
+ALTER TABLE 命令用于表格修改，`UPDATE`命令用于修改列的值。
+
+```
+ALTER TABLE A ADD COLUMN score real;
+UPDATE A SET score = 0;
+UPDATE A SET score = 60 WHERE ID = 1;
+```
+
+注意，数据库的思想是表格查询远大于表格修改，表格如果需要频繁修改，应该使用外部工具，例如R或者Python来处理。
+
+---
+
+## 数据连接
+
+三种连接方式对应：INNER JOIN，LEFT JOIN，FULL OUTER JOIN，ON关键字表示匹配条件
+
+```
+SELECT A.ID, B.NAME FROM A INNER JOIN B ON A.ID = B.ID;
+```
+
+---
+
+## 数据分组与汇总
+
+分组使用GROUP B， 可以搭配函数使用来进行汇总
+
+```
+SELECT COUNT(*), gender FROM A GROUP BY gender;
+```
+
+---
+
+## 其他
+
+排序使用ORDRR BY，删除使用DROP
+
+---
+
+## 数据读写
+
+csv数据读入命令如下
+
+```
+.mode csv
+.import /Users/birdstone/dropbox/bigdata_econ_2023/data/pub_211.csv pub_211
+```
+
+调整模式使得，可以查询到表格的表头
+
+```
+.header on
+.mode column
+pragma table_info('pub_211');
+SELECT * FROM pub_211 LIMIT 10;
+```
+
+---
+
+使用output命令可以导出数据到csv文件
+
+```
+headers on
+.mode csv
+.output data.csv
+SELECT * from A;
+.quit
+```
+
+---
+
+使用output命令也可以转存数据成为sql语句
+
+```
+.output /Users/birdstone/dropbox/bigdata_econ_2023/data/new.sql
+.dump pub_211
+.quit
+```
+
+---
+
+## 索引与键
+
+索引算法将数据的不重复的信息储存在一个B-tree当中，查询建立索引的列。如果不使用索引，每次查询都要遍历整个表，使用索引可以极大改善查询速度。因此建议每次查询之前都确认是否能使用索引。
+
+```
+CREATE INDEX inst_index ON pub_211(inst_cn, pubyear);
+SELECT * FROM pub_211 WHERE inst_cn = "湖南大学" and pubyear = 2022;
+```
+
+键是一类特殊的索引，可以在新建表格的时候制定，主键意味着不可重复的列，对应着观测单元。
+
+---
+
+# MySQL
+
+## 安装
+
+macOS中自带了MySQL，可以在`settings`搜索`MySQL`来找到并开启。
+
+也可以使用`brew`管理器来安装，具体命令如下：
+
+```
+brew update
+brew install mysql
+```
+
+通过`brew`安装的mysql会在路径`/usr/local/Cellar`，启动文件`mysql.server`位于`/usr/local/Cellar/mysql/{版本号}/support-files`内。
+
+---
+
+在启动mysql之前，需要做如下初始化操作。
+
+1. 进入`/usr/local/Cellar/mysql/{版本号}`，执行命令`bin/mysqld --initialize-insecure --user=mysql`初始化储存数据的路径，此时root账号没有设置密码。
+
+2. 进入于`/usr/local/Cellar/mysql/{版本号}/support-files`，执行命令`mysql.server start`启动mysql（`mysql.server stop`为关闭mysql命令）。
+
+3. 启动完成后，使用`mysql -u root --skip-password`登录mysql，并使用`ALTER USER 'root'@'localhost' IDENTIFIED BY 'root-password'`修改密码。
+
+---
+
+MySQL的绝大多数语句与SQLite相同，这里列举出来不同的地方。
+
+第一个不同的地方是新建数据库与展示数据表格。
+
+```
+CREATE DATABASE testDB;
+SHOW DATABASES;
+USE testDB;
+SHOW TABLES;
+DESC A;
+```
+
+---
+
+第二个不同地方是读写数据，读入数据使用LOAD DATA INFILE
+
+```
+LOAD DATA INFILE "~/pub_211.csv" INTO TABLE pub_211 FIELDS TERMINATED BY "," LINES TERMINATED BY "\n" IGNORE 1 lines;
+```
+
+`FIELDS TERMINATED BY``指定数据的分列符，` LINES TERMINATED BY`指定分行符，`IGNORE`表示导入时忽略表头。
+
+导出数据使用`SELECT * INTO OUTFILE`
+
+```
+SELECT * INTO OUTFILE "~/pub_211new.csv" FROM  pub_211 FIELDS TERMINATED BY "," LINES TERMINATED BY "\n" IGNORE 1 lines;
+```
+
+---
+
+转存数据使用mysqldump
+
+```
+mysqldump db_name &gt; backup-file.sql
+```
+
+读入dump出的数据库使用mysql命令
+
+```
+mysql db_name &lt; backup-file.sql
+```
+
+---
+
+&lt;br/&gt;
+
+MySQL是面向多用户的应用场景，因此需要管理用户权限。使用root用户登录后，可以使用如下命令创建新用户。
+
+```
+CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
+```
+
+上述命令中，username为用户名，'@'后面指定该用户可以使用的服务器地址，localhost表示该用户仅限于登录本机后使用，password是用户密码。
+
+使用GRANT命令修改用户权限。
+
+```
+GRANT SELECT ON db.table TO 'username'@'localhost';
+```
+
+上述命令表示赋予username在数据库db总的table表的查询权限。
+
+---
+
+# 控制流程？函数？
+
+- 有，但是不推荐
+
+- 使用R与Python来执行（作业）
+
+---
+
+自学教程
+
+https://www.sqlitetutorial.net/sqlite-primary-key/
+
+https://www.mysqltutorial.org/
+
+https://www.postgresqltutorial.com/
+
+---
+
+class: inverse,middle,center
+# 一切都是查询
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "googlecode",
+"highlightLines": true,
+"highlightLanguage": "r",
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--Hat-tip: https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/-->
+<style>
+.logo {
+  background-image: url(img/IDEALAB.jpeg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 110px;
+  height: 128px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>第八讲：图形语法与数据可视化</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="史冬波" />
+    <meta name="date" content="2023-12-14" />
+    <script src="libs/header-attrs-2.24/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link rel="stylesheet" href="css/nhsr.css" type="text/css" />
+    <link rel="stylesheet" href="css/nhsr-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+class: title-slide, left, bottom
+
+# 第八讲：图形语法与数据可视化
+----
+## **几何对象、美术属性、标尺、标签与图例、主题**
+### 史冬波
+### 2023-12-14
+
+---
+# 课前准备
+
+- R包ggplot2, ggrepel, ggthemes, scales, ggsci, ggpubr
+
+- 数据EconomistData.csv (dropbox)
+
+---
+
+# 学习目标
+
+- 图形语法的思想
+
+- ggplot2的基本语法
+
+- ggplot2修图的思路
+
+---
+
+# 从一个可以画恐龙的包datasauRus说起
+
+![](08_GG_files/figure-html/08-visaulization-datasau1-1.png)&lt;!-- --&gt;
+
+---
+
+事出反常必有妖！它包括了若干组描述性统计完全一致，但是分布却截然不同的数据集。
+
+![](08_GG_files/figure-html/08-visaulization-datasauRus2-1.png)&lt;!-- --&gt;
+
+---
+
+
+```
+## # A tibble: 13 × 6
+##    dataset    mean_x mean_y std_dev_x
+##    &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
+##  1 away         54.3   47.8      16.8
+##  2 bullseye     54.3   47.8      16.8
+##  3 circle       54.3   47.8      16.8
+##  4 dino         54.3   47.8      16.8
+##  5 dots         54.3   47.8      16.8
+##  6 h_lines      54.3   47.8      16.8
+##  7 high_lines   54.3   47.8      16.8
+##  8 slant_down   54.3   47.8      16.8
+##  9 slant_up     54.3   47.8      16.8
+## 10 star         54.3   47.8      16.8
+## 11 v_lines      54.3   47.8      16.8
+## 12 wide_lines   54.3   47.8      16.8
+## 13 x_shape      54.3   47.8      16.8
+## # ℹ 2 more variables: std_dev_y &lt;dbl&gt;,
+## #   corr_x_y &lt;dbl&gt;
+```
+
+---
+
+# 数据可视化的目的
+
+数据可视化的目的是直观地向读者传递数据中包含的信息。重要的事情说三遍，**传递信息、传递信息、传递信息**！
+
+--
+
+一个优秀的可视化应该具备以下的特征：
+
+--
+
+1. 重点突出。要让读者第一眼就能发现你要传达的主要信息，而不是暗戳戳的隐藏起来，等待别人发现。
+
+--
+
+2. 表意清晰。主要信息的传递要明确清晰，不要产生歧义，让读者自行发挥。充分利用注释、标题等来避免歧义。
+
+--
+
+3. 信息量大。图形的标题、注释都可以传达信息，在有限的图形内，尽可能传递更多信息。
+
+--
+
+4. 逻辑完整。数据传递的信息要有逻辑，能够独立阅读。
+
+--
+
+5. 美观。尽可能增强图形的美学水平，让读者愿意看，看着舒服，愿意分享。
+
+---
+
+# 如何向计算机描述一张统计图？
+
+&lt;img src="img/08/Economist1.png" width="80%" /&gt;
+
+---
+
+&lt;img src="img/08/Economist2.png" width="90%" /&gt;
+
+
+---
+
+# 图形语法（Grammar of Graphics）
+
+--
+
+- Leland Wilkinson开发的一套用来描述所有统计图表深层特性的语法规则，该语法回答了**什么是统计图**这一问题
+
+--
+
+- 以自底向上的方式组织最基本的元素形成更高级的元素
+
+--
+
+- 一张图就是从数据到几何标记对象的图形属性的一组映射，绘制在某个特定的坐标系中
+
+---
+
+油画，绘图的过程就是在一张空白的画布上，一层一层地叠加图形要素
+
+&lt;img src="img/08/paint.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## GG拆解的图形要素
+
+--
+
+- **几何对象**指的是将数据映射到图形之后的几何类型，包括点（point）、线（line）、直方（histgram）、柱（bar）等。
+
+--
+
+- **美术属性**指的是几何对象呈现在图形中的属性，例如颜色（color）、形状（shape）、尺寸（size）、透明度（alpha）等。属性让同一类几何对象传递更加丰富的信息。
+
+--
+
+- **标签注释**包括标题（title）、轴标题（x/y title）、轴标签（xlab/ylab）、文本标签（text label）、注释（note）、图例（legend）等。可以进一步丰富图形传达的信息。
+
+更多关于GG的内容，可以参考Wilkinson的著作[The Grammar of Graphics](https://link.springer.com/book/10.1007/0-387-28695-0)。
+
+---
+
+# ggplot2
+
+将GG在R语言中实现的又是我们熟悉的大神Wickham，他设计了`ggplot2`包，`ggplot2`及其家族现在已经成为统计制图的最佳工具
+
+&lt;img src="img/08/Economist2.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+本节的任务就是逐步学习`ggplot2`的要素，并画出此图。教学材料受到哈佛大学[IQSS](http://tutorials.iq.harvard.edu/)的启发
+
+---
+
+## `ggplot`作图的语法
+
+
+```r
+ggplot(data = &lt;Data&gt;) +
+  &lt;Geom_Function&gt;(mapping = aes(&lt;Mappings&gt;),
+  stat = &lt;Stat&gt;,
+  position = &lt;Position&gt;) +
+  &lt;Coordinate_Function&gt; +
+  &lt;Facet_Function&gt; +
+  &lt;Scale_Function&gt; +
+  &lt;Theme_Function&gt;
+```
+
+---
+
+## `ggplot2`的语法逻辑
+
+1. `ggplot`函数指定数据，然后使用`+`叠加后续绘图动作；
+
+2. `geom_`函数族（或者`stat_`函数族）指定特定类型的几何对象；
+
+3. `aes`函数调节几何对象的美术属性；
+
+4. `coordinate_`函数指定坐标系统（可用于画地图）；
+
+5. `facet_`函数进行分面；
+
+6. `scale`函数调节坐标尺；
+
+7. `theme`、`lab`、`guide`函数等调节主题、标题、图例等附加属性。
+
+此外，`last_plot()`可返回上一张图片，`ggsave`用于图片输出。
+
+---
+
+## 几何对象
+
+
+```r
+economist &lt;- read_csv("data/08/EconomistData.csv")
+p1 &lt;- ggplot(economist, aes(x = CPI, y = HDI))
+p2 &lt;- p1 + geom_point()
+print(p2)
+```
+
+&lt;img src="08_GG_files/figure-html/scatter-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+使用`ggplot`函数指定画图数据框为`economist`，`aes`参数用于指定底图的x轴与y轴对应的变量，然后使用`geom_point`函数绘制散点图。
+
+
+---
+
+除散点图外，ggplot还支持类型丰富的几何对象，现将主要类型总结如下：
+
+| 几何对象                | 变量类型          | 图类型                       |
+|:---------------------|:---------------|:--------------------------------|
+| `geom_blank`        | 初始化           | 空白画布                           |
+| `expand_limits`     | 初始化           | 扩展画布范围以囊括所有数据                  |
+| `geom_curve`          | 初始化           | 一条曲线，指定起止点与弧度 |
+| `geom_path`           | 初始化           | 点组成的路径                         |
+| `geom_polygon`        | 初始化           | 多边形                            |
+| `geom_rect`           | 初始化           | 矩形或方块                          |
+| `geom_ribbon`         | 初始化           | 带状区域，常用于表示区域的不确定性或置信区间         |
+| `geom_abline`         | 线段            | 斜直线                            |
+| `geom_hline`         | 线段            | 竖线                             |
+| `geom_vline`          | 线段            | 横线                             |
+| `geom_segment`        | 线段            | 斜线段                            |
+| `geom_spoke`        | 线段            | 基于原点的向量或箭头，常用于极坐标  |
+
+---
+
+| 几何对象                | 变量类型          | 图类型         |
+|:---------------------|:---------------|:--------------------------------|
+| `geom_area`           | 单连续变量         | 向坐标轴的区域  |
+| `geom_density`        | 单连续变量         | 核密度分布图|
+| `geom_dotplot`        | 单连续变量         | 分布堆叠图，点的堆叠表示相同数值的重复次数。         |
+| `geom_freqpoly`       | 单连续变量         | 频率多边形图，连续变量的频率分布情况，是一种直方图的替代方式 |
+| `geom_histogram`      | 单连续变量         | 分布直方图                          |
+| `geom_qq`             | 单连续变量         | Q-Q 图（Quantile-Quantile Plot）  |
+| `geom_bar`            | 单离散变量         | 条形图                            |
+| `geom_point`          | 双连续变量         | 散点图                            |
+| `geom_rug`            | 双连续变量         | 轴须图，以类似条形码的方式在数据外侧展示变量分布密度     |
+| `geom_smooth`         | 双连续变量         | 平滑拟合线                     |
+| `geom_text`           | 双连续变量         | 为散点图添加文本标签      |
+| `geom_col`            | 一个离散变量加一个连续变量 | 柱状图       |
+
+---
+
+&lt;br/&gt;
+
+| 几何对象                | 变量类型          | 图类型         |
+|:---------------------|:---------------|:--------------------------------|
+| `geom_boxplot`        | 一个离散变量加一个连续变量 | 箱线图     |
+| `geom_violin`         | 一个离散变量加一个连续变量 | 小提琴图  |
+| `geom_count`          | 双离散变量         | 散点密度图，点大小表达该位置点的数量|
+| `geom_jitter`         | 双离散变量         | 抖动散点图，对数据进行随机抖动，以展示离散点的密度分布情况  |
+| `geom_bin2d`          | 双变量           | 二维直方图                       |
+| `geom_density_2d`     | 双变量           | 二维核密度图                    |
+| `geom_hex`           | 双变量           | 六边形分箱                      |
+| `geom_line`           | 双变量           | 折线图                         |
+| `geom_step`           | 双变量           | 阶梯图                           |
+
+---
+
+&lt;br/&gt;
+
+
+| 几何对象                | 变量类型          | 图类型         |
+|:---------------------|:---------------|:--------------------------------|
+| `geom_crossbar`       | 误差变量          | 误差条图                        |
+| `geom_errorbar`       | 误差变量          | 误差雷达图                     |
+| `geom_linerange`      | 误差变量          | 误差线图                        |
+| `geom_pointrange`     | 误差变量          | 误差线图（带均值点） |
+| `geom_map`            | 地理变量          | 地图                            |
+| `geom_contour`        | 三变量           | 等高线图                        |
+| `geom_contour_filled` | 三变量           | 与`geom_contour`配合使用制作带填充的等高线图    |
+| `geom_raster`         | 三变量           | 栅格图                           |
+| `geom_tile`           | 三变量           | 热力图                           |
+
+参考https://rstudio.github.io/cheatsheets/html/data-visualization.html#geoms
+
+---
+
+## 美术属性
+
+`aes`可用于指定几何对象的美术属性。指定美术属性既可使用常量，例如制定颜色为红色（red）;也可以使用变量，例如通过学科（region）来赋值颜色
+
+
+```r
+p3 &lt;- p1 + geom_point(aes(color = Region))
+print(p3)
+```
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-37-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+
+---
+
+使用常量调整颜色
+
+
+```r
+p1 + geom_point(aes(color = "blue"))
+```
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-38-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+使用常量调整颜色时，不调用aes函数
+
+
+```r
+p1 + geom_point(color = "blue")
+```
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-39-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+### 常用的美学属性
+
+| 几何对象  | 美术属性     | 作用                                     |
+|:-------|:----------|:----------------------------------------|
+| all   | color    | 颜色，支持色号、文本等方式赋值                        |
+| all   | fill     | 填充颜色                                   |
+| all   | size     | 大小                                     |
+| all   | alpha    | 透明度 |
+| line  | linetype | 线条类型：支持0-6共七种类型                        |
+| line  | lineend  | 线条结尾：“round”, “butt” (缺省值), “square”   |
+| line  | linejoin | 线条连接处：“round” (缺省值), “mitre”, “bevel”. |
+| point | shape    | 点的形状：0-25共26种形状                        |
+| point/line | stroke   | 图形或线条的轮廓|
+
+---
+
+&lt;br/&gt;
+
+| 几何对象  | 美术属性     | 作用                                     |
+|:-------|:----------|:----------------------------------------|
+| text  | family   | 指定文本的字体                                |
+| text  | fontface | 指定字体样式："plain", "bold", "italic"       |
+| text  | hjust    | 纵向位置：top = 1, middle = 0.5, bottom = 0 |
+| text  | vjust    | 横向位置：left = 0, center = 0.5, right = 1 |
+
+&lt;br/&gt;
+&lt;br/&gt;
+&lt;br/&gt;
+&lt;br/&gt;
+&lt;br/&gt;
+&lt;br/&gt;
+参考：https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill
+
+---
+
+
+```r
+p3 &lt;- p1 + 
+  geom_point(shape = 1, size = 2.5, aes(color = Region)) +
+  geom_smooth(method = "lm",color = "darkred",
+              formula = y~ poly(x, 2),se = FALSE)
+print(p3)
+```
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-40-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+p4 &lt;- p1 + 
+  geom_point(shape = 21,
+             size = 3,
+             fill = "white",
+             stroke = 1.5,
+             aes(color = Region)) +
+  geom_smooth(method = "lm",
+              color = "red",
+              aes(linetype = "R^2 = 56%"),
+              formula = y~ poly(x, 2),
+              se = FALSE)
+print(p4)
+```
+
+---
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-42-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+dat &lt;- economist %&gt;%
+  filter(Country %in% c("New Zealand","Norway","Singapore","Germany","United States",
+                        "United Kingdom","Japan","Britain","Barbados","France",
+                        "Spain","Botswana","CapVerde","Bhutan",
+                        "Rwanda","Italy","Brazil","Greece","China",
+                        "South Africa","India","Argentina","Russia",
+                        "Venezuela","Iraq","Congo","Myanmar","Sudan","Afghanistan"))
+p5 &lt;- p4 + 
+  geom_text_repel(data = dat,
+                  force = 0.5,
+                  hjust = 0.1,
+                  size = 2,
+                  aes(label = Country),
+                  max.overlaps = 30,
+                  box.padding = 0.1)
+print(p5)
+```
+
+---
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-44-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 统计变换
+
+统计变换函数（statistical transformation functions）用于对数据进行统计计算。
+
+`stat_summary`函数可将数据按照指定的函数进行汇总，例如计算平均值、中位数等，并将汇总结果绘制到图表中。下面的代码中，`fun`参数指定了计算均值，`geom`参数制定了转换后的集合对象
+
+---
+
+
+```r
+ggplot(economist, aes(x = CPI, y = HDI)) +
+  stat_summary(fun = mean, geom = "col")
+```
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-45-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;br/&gt;
+
+- `stat_function`，允许将数学函数应用到图形中。可以使用此函数绘制自定义函数的图形；
+
+- `stat_ecdf`，绘制经验累积分布函数，显示数据的累积分布情况；
+
+- `stat_contour`用于创建等高线图，展示二维数据的密度分布情况；
+
+- `stat_density`用于绘制核密度估计曲线，展示数据的密度分布情况；
+
+- `stat_summary_hex`类似于`stat_summary`，用六边形的方式呈现数据的汇总结果。
+
+&lt;br/&gt;
+
+🔔 尽管统计转换函数集成了数据转换与绘图，看上去比较方便，但是我们推荐读者实践中还是将数据转换与绘图分开，这样的代码更直观，也更加容易调整。
+
+
+---
+
+## 标尺
+
+- `scale_`函数族用于调整x轴，y轴以及所有美术属性对应变量的尺度
+
+- 明确调整的变量是连续变量还是离散变量
+
+  - `scale_*_continuous`将数据的连续取值映射为图形属性的取值
+  
+  - `scale_*_discrete`将数据的离散取值映射为图形属性的取值
+
+- `scale_x_(y_)_continuous/discrete`用于调整坐标轴的范围（limits参数）、刻度（breaks，labels参数）以及位置（position参数）等特性
+
+---
+
+
+```r
+p6 &lt;- p5 + 
+  scale_x_continuous("Corruption Perceptions Index, 2011 (10 = least corrupt)",
+                     breaks = 1:10,
+                     limits = c(1,10.2),
+                     expand = c(0,0)) +
+  scale_y_continuous("Human Development Index, 2011 (1 = best)",
+                     breaks = seq(0.2,1,0.1),
+                     limits = c(0.2,1.0)) + 
+  scale_linetype_discrete(labels = paste0(expression(R^2)," = 56%"))
+print(p6)
+```
+
+---
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-47-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+
+### 其他常用`scale`函数
+
+- `scale_*_binned`将数据的连续取值映射为离散的统计堆
+
+- `scale_*_identity`使用数据的值作为图形属性的取值
+
+- `scale_*_manual(values = c())`将数据的离散取值作为手工指定的图形属性的取值
+
+- `scale_*_date(date_labels = "%m/%d"),date_breaks = "2 weeks")`将数据值视为日期
+
+- `scale_*_datetime()`将数据视为时间。
+
+- `scale_x_log10`以log10比例绘制x轴，
+
+- `scale_x_reverse`反转x轴方向
+
+- `scale_x_sqrt`以平方根绘制x。
+
+---
+
+
+```r
+p7 &lt;- p6 + 
+  scale_color_manual(values=c("#014d64","#01a2d9","#7ad2f6","#00887d","#ee8f71","#7c260b"),
+                     labels=c("Americas","Asia Pacific",
+                              "East Europe &amp; Central Asia",
+                              "West Europe","East Asia",
+                              "South Asia"))
+print(p7)
+```
+
+---
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-49-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 坐标系
+
+- `gglot2`默认使用笛卡尔坐标系
+
+- `coord_fixed`指定x和y单位之间固定长宽比的笛卡尔坐标
+
+- `coord_polar`为极坐标系
+
+- `coord_trans(y = 'sqrt')`使用变量转换后的坐标系
+
+- `coord_map`用于地理绘图中的坐标系
+
+---
+
+## 分面
+
+分面（facet）指的是按照某一个或两个分类变量的不同值将数据分为若干个子集，每个数据子集分别在分面上作图，使用`facet_wrap`可以直接分面，分面可以使用单个变量，也可以使用两个变量
+
+
+```r
+p1 + geom_point() + facet_wrap(~ Region)
+```
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-50-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 标签与图例
+
+- `labs`函数用于标记图中的元素，其`x/y`参数标注坐标轴，`title`参数标注图标题，`subtitle`标注图的子标题，`caption`标注图说明。
+
+- `guides`函数用于设置图例，常用的包括取消图例（设定对应美术属性为none），以及设置图例位置`theme(legend.position = "bottom")`。
+
+- `annotate`函数可以直接在图上手工添加文本
+
+---
+
+
+```r
+p8 &lt;- p7 + 
+  labs(title = "Corruption and human development",
+       caption = "Source: Transparency International; UN Human Development Report") + 
+  guides(colour = guide_legend(title = element_blank()),
+         linetype = guide_legend(title = element_blank()))
+print(p8)
+```
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-51-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 主题
+
+- 一张图里面的格式可以统称为主题，通过`theme`函数可以对图的每一处细节进行调整
+
+- theme函数调用的方式为`theme(element_name = element_function())`
+
+- `element_name`为调整的对象，element_name涵盖了画面中的每一个要素
+
+- `element_function`为元素函数
+
+  - `element_text()`一般用于控制标签和标题的字体风格
+  
+  - `element_line`一般用于控制线条或线段的颜色或线条类型
+  
+  - `element_rect`一般用于控制背景矩形的颜色或者边界线条类型
+  
+  - `element_blank`不分配相应的绘图空间，即删去这个地方的绘图元素
+
+- 主题调整的细节非常多，没办法一一展开，主要靠实践，记不住的，帮助文档+搜索
+
+---
+
+&lt;br/&gt;
+
+一些常用的样式被封装在一些主题当中，例如`theme_bw()`，`theme_classic()`，`theme_minimal()`，调用这些主题会覆盖掉原先的主题
+
+
+```r
+p8  + theme_classic()
+```
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-52-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+`ggthemes`包提供了更丰富的格式主题
+
+
+```r
+library(ggthemes)
+p8 + theme_stata()
+```
+
+![](08_GG_files/figure-html/unnamed-chunk-53-1.png)&lt;!-- --&gt;
+
+
+```r
+p8 + theme_economist()
+```
+
+![](08_GG_files/figure-html/unnamed-chunk-54-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+p8 + theme_wsj()
+```
+
+![](08_GG_files/figure-html/unnamed-chunk-55-1.png)&lt;!-- --&gt;
+
+---
+
+theme的另一种用法为讲自己设置的格式储存为主题，用于后续的图形中简单调用
+
+---
+
+
+```r
+p9 &lt;- p8 + 
+  theme(panel.background = element_rect(fill = "white"),
+        panel.grid.major.y = element_line(color = "grey",linetype = "solid"),
+        panel.grid.major.x = element_blank(),
+        axis.line.x = element_line(color = "black"),
+        axis.text.x = element_text(color = "black",size = 12),
+        axis.ticks.length.x = unit(-0.2, "cm"),
+        axis.ticks.length.y = unit(0.5, "cm"),
+        axis.ticks.y = element_line(color = "grey"),
+        axis.text.y = element_text(color = "black",size = 12),
+        axis.title = element_text(face = "italic"),
+        plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0),
+        legend.position = "top",
+        legend.box = "horizontal",
+        legend.title = element_blank(),
+        legend.key = element_blank(),
+        legend.justification=c(-0.15,1)) + 
+  guides(colour = guide_legend(nrow = 1,order=1))
+print(p9)
+```
+
+---
+
+&lt;img src="08_GG_files/figure-html/unnamed-chunk-57-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 储存
+
+ggsave
+
+---
+
+课后作业
+
+- 与第九讲一起
+
+---
+
+拓展资料
+
+希望深入了解`ggplot2`语法的读者，推荐直接阅读Wickham的著作，ggplot2: Elegant Graphics for Data Analysis，https://ggplot2-book.org/
+
+The R Graph Gallery网页提供了丰富的可视化样品作为参考，&lt;https://r-graph-gallery.com/index.html&gt;
+
+---
+
+class: inverse,middle,center
+# 一层一层又一层
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "googlecode",
+"highlightLines": true,
+"highlightLanguage": "r",
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--Hat-tip: https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/-->
+<style>
+.logo {
+  background-image: url(img/IDEALAB.jpeg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 110px;
+  height: 128px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
